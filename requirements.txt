@@ -1,0 +1,5 @@
+# Python requirements for MQTT test client
+paho-mqtt==1.6.1
+
+# Optional: For enhanced JSON handling and data analysis
+requests==2.31.0
