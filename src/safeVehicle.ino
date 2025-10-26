@@ -137,7 +137,8 @@ void loop()
         networkManager.isWiFiConnected(),
         networkManager.isMQTTConnected(),
         vehicleMonitor.isCalibrationComplete());
-    delay(3000);
+    displayManager.drawMonitoringUI();
+    delay(1000);
   }
 }
 
