@@ -13,7 +13,6 @@
 class DisplayManager {
 public:
   DisplayManager(MKRIoTCarrier& carrier);
-  
   void begin();
   void showInitializing();
   void showCalibrating(int progress);
@@ -25,7 +24,16 @@ public:
   void setLEDColor(uint32_t color);
   void clearLEDs();
   void flashLEDs(uint32_t color, int times, int delayMs);
-  
+
+  // New UI methods for round display
+  void drawMonitoringUI();
+  void updateAccelValue(float value);
+  void updateGyroValue(float value);
+  void updateTempValue(float value);
+  void updateHumidityValue(float value);
+  void updatePressureValue(float value);
+  void updateWarningMsg(const String& msg);
+
 private:
   MKRIoTCarrier& carrier;
 };

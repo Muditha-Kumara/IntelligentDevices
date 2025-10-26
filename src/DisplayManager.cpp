@@ -171,16 +171,16 @@ void DisplayManager::showMonitoringStatus(const VehicleData& data, const Thresho
 
 void DisplayManager::showAlert(String eventType, String level) {
   // Visual alert on display
-  carrier.display.fillScreen(level == "critical" ? DISPLAY_RED : DISPLAY_YELLOW);
-  carrier.display.setTextColor(DISPLAY_BLACK);
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(40, 60);
-  carrier.display.println("WARNING!");
-  carrier.display.setCursor(20, 90);
-  carrier.display.setTextSize(1);
-  carrier.display.println(eventType);
-  carrier.display.setCursor(20, 110);
-  carrier.display.println("Level: " + level);
+  // carrier.display.fillScreen(level == "critical" ? DISPLAY_RED : DISPLAY_YELLOW);
+  // carrier.display.setTextColor(DISPLAY_BLACK);
+  // carrier.display.setTextSize(2);
+  // carrier.display.setCursor(40, 60);
+  // carrier.display.println("WARNING!");
+  // carrier.display.setCursor(20, 90);
+  // carrier.display.setTextSize(1);
+  // carrier.display.println(eventType);
+  // carrier.display.setCursor(20, 110);
+  // carrier.display.println("Level: " + level);
 }
 
 void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected, bool mqttConnected) {
@@ -211,4 +211,79 @@ void DisplayManager::flashLEDs(uint32_t color, int times, int delayMs) {
     carrier.leds.show();
     delay(delayMs);
   }
+}
+
+void DisplayManager::drawMonitoringUI() {
+  carrier.display.fillScreen(DISPLAY_BLACK);
+  carrier.display.setTextColor(DISPLAY_WHITE);
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(60, 10);
+  carrier.display.println("Vehicle Monitor");
+
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(30, 50);
+  carrier.display.println("Accel:");
+  carrier.display.setCursor(30, 80);
+  carrier.display.println("Gyro:");
+  carrier.display.setCursor(30, 110);
+  carrier.display.println("Temp:");
+  carrier.display.setCursor(30, 140);
+  carrier.display.println("Humidity:");
+  carrier.display.setCursor(30, 170);
+  carrier.display.println("Pressure:");
+
+  // Reserve area for warning message at bottom
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(30, 200);
+  carrier.display.setTextColor(DISPLAY_YELLOW);
+  carrier.display.println("Msg:");
+}
+
+void DisplayManager::updateWarningMsg(const String& msg) {
+  
+}
+
+void DisplayManager::updateAccelValue(float value) {
+  carrier.display.setTextColor(DISPLAY_GREEN);
+  carrier.display.setTextSize(2);
+  carrier.display.fillRect(160, 50, 80, 25, DISPLAY_BLACK); // Clear previous value
+  carrier.display.setCursor(160, 50);
+  carrier.display.print(value, 2);
+  carrier.display.print(" m/s2");
+}
+
+void DisplayManager::updateGyroValue(float value) {
+  carrier.display.setTextColor(DISPLAY_GREEN);
+  carrier.display.setTextSize(2);
+  carrier.display.fillRect(160, 80, 80, 25, DISPLAY_BLACK);
+  carrier.display.setCursor(160, 80);
+  carrier.display.print(value, 1);
+  carrier.display.print(" deg/s");
+}
+
+void DisplayManager::updateTempValue(float value) {
+  carrier.display.setTextColor(DISPLAY_GREEN);
+  carrier.display.setTextSize(2);
+  carrier.display.fillRect(160, 110, 80, 25, DISPLAY_BLACK);
+  carrier.display.setCursor(160, 110);
+  carrier.display.print(value, 1);
+  carrier.display.print(" C");
+}
+
+void DisplayManager::updateHumidityValue(float value) {
+  carrier.display.setTextColor(DISPLAY_GREEN);
+  carrier.display.setTextSize(2);
+  carrier.display.fillRect(160, 140, 80, 25, DISPLAY_BLACK);
+  carrier.display.setCursor(160, 140);
+  carrier.display.print(value, 1);
+  carrier.display.print(" %");
+}
+
+void DisplayManager::updatePressureValue(float value) {
+  carrier.display.setTextColor(DISPLAY_GREEN);
+  carrier.display.setTextSize(2);
+  carrier.display.fillRect(160, 170, 80, 25, DISPLAY_BLACK);
+  carrier.display.setCursor(160, 170);
+  carrier.display.print(value, 1);
+  carrier.display.print(" kPa");
 }
