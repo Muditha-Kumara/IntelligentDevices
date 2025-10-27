@@ -54,12 +54,15 @@ struct VehicleData {
 };
 
 struct Thresholds {
-  float caution_accel = 2.0;      // m/s²
-  float alert_accel = 3.5;        // m/s²
-  float critical_accel = 5.0;     // m/s²
-  float hard_braking = 3.5;       // m/s²
-  float sharp_turn = 150.0;       // degrees/s
-  float bump_impact = 6.0;        // m/s²
+  float caution_accel = 1;        // 2.0;      // m/s²
+  float alert_accel = 2;  //3.5;                            // m/s²
+  float critical_accel = 3;  //5.0;                            // m/s²
+  float hard_braking = 3;  //3.5;                            // m/s²
+                                  // float sharp_turn = 150.0;       // degrees/s
+  float sharp_turn = 1;
+  //2.0;                            // m/s²
+  float bump_impact = 3;
+  //6.0;                            // m/s²
   int sampling_rate = 100;        // ms
   int telemetry_interval = 2000;  // ms
 };

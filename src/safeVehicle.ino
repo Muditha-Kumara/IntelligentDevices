@@ -87,9 +87,8 @@ void loop()
     lastDrivingMonitor = currentTime;
 
     // Update sensor values in permanent UI
-    displayManager.updateAccelValue(
-        sqrt(lastVehicleData.accel_x * lastVehicleData.accel_x + lastVehicleData.accel_y * lastVehicleData.accel_y + lastVehicleData.accel_z * lastVehicleData.accel_z));
-    displayManager.updateGyroValue(abs(lastVehicleData.gyro_z));
+    displayManager.updateAccelValue(lastVehicleData.accel_x, lastVehicleData.accel_y, lastVehicleData.accel_z);
+    // displayManager.updateGyroValue(abs(lastVehicleData.gyro_z));
     displayManager.updateTempValue(lastTemp);
     displayManager.updateHumidityValue(lastHumidity);
     displayManager.updatePressureValue(lastVehicleData.pressure);

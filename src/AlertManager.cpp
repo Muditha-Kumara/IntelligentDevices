@@ -20,9 +20,9 @@ void AlertManager::triggerAlert(String eventType, String level) {
   
   // Play audio alert
   playWarningTone();
-  
+
   // Show alert for 2 seconds
-  delay(2000);
+  // delay(1000);
 }
 
 void AlertManager::playLEDPattern(String level) {

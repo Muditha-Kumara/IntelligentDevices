@@ -27,7 +27,7 @@ public:
 
   // New UI methods for round display
   void drawMonitoringUI();
-  void updateAccelValue(float value);
+  void updateAccelValue(float x, float y, float z);
   void updateGyroValue(float value);
   void updateTempValue(float value);
   void updateHumidityValue(float value);

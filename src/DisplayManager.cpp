@@ -170,17 +170,13 @@ void DisplayManager::showMonitoringStatus(const VehicleData& data, const Thresho
 }
 
 void DisplayManager::showAlert(String eventType, String level) {
-  // Visual alert on display
-  // carrier.display.fillScreen(level == "critical" ? DISPLAY_RED : DISPLAY_YELLOW);
-  // carrier.display.setTextColor(DISPLAY_BLACK);
-  // carrier.display.setTextSize(2);
-  // carrier.display.setCursor(40, 60);
-  // carrier.display.println("WARNING!");
-  // carrier.display.setCursor(20, 90);
-  // carrier.display.setTextSize(1);
-  // carrier.display.println(eventType);
-  // carrier.display.setCursor(20, 110);
-  // carrier.display.println("Level: " + level);
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(90, 200);
+  carrier.display.setTextColor(DISPLAY_BLACK);
+  carrier.display.println("            ");
+  carrier.display.setCursor(90, 200);
+  carrier.display.setTextColor(DISPLAY_YELLOW);
+  carrier.display.println(eventType);
 }
 
 void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected, bool mqttConnected) {
@@ -223,8 +219,8 @@ void DisplayManager::drawMonitoringUI() {
   carrier.display.setTextSize(2);
   carrier.display.setCursor(30, 50);
   carrier.display.println("Accel:");
-  carrier.display.setCursor(30, 80);
-  carrier.display.println("Gyro:");
+  // carrier.display.setCursor(30, 80);
+  // carrier.display.println("Gyro:");
   carrier.display.setCursor(30, 110);
   carrier.display.println("Temp:");
   carrier.display.setCursor(30, 140);
@@ -234,7 +230,7 @@ void DisplayManager::drawMonitoringUI() {
 
   // Reserve area for warning message at bottom
   carrier.display.setTextSize(2);
-  carrier.display.setCursor(30, 200);
+  carrier.display.setCursor(40, 200);
   carrier.display.setTextColor(DISPLAY_YELLOW);
   carrier.display.println("Msg:");
 }
@@ -243,13 +239,22 @@ void DisplayManager::updateWarningMsg(const String& msg) {
   
 }
 
-void DisplayManager::updateAccelValue(float value) {
+void DisplayManager::updateAccelValue(float x, float y, float z)
+{
   carrier.display.setTextColor(DISPLAY_GREEN);
   carrier.display.setTextSize(2);
-  carrier.display.fillRect(160, 50, 80, 25, DISPLAY_BLACK); // Clear previous value
-  carrier.display.setCursor(160, 50);
-  carrier.display.print(value, 2);
-  carrier.display.print(" m/s2");
+  carrier.display.fillRect(00, 80, 240, 50, DISPLAY_BLACK); // Clear previous value area for three rows
+  carrier.display.setCursor(5, 80);
+  carrier.display.print("X:");
+  carrier.display.print(x, 2);
+  carrier.display.setCursor(80, 80);
+  carrier.display.print("Y:");
+  carrier.display.print(y, 2);
+  carrier.display.setCursor(160, 80);
+  carrier.display.print("Z:");
+  carrier.display.print(z, 2);
+  carrier.display.setCursor(180, 50);
+  carrier.display.print("m/s2"); // Show unit only once at the end
 }
 
 void DisplayManager::updateGyroValue(float value) {

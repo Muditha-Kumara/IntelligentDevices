@@ -129,9 +129,9 @@ void VehicleMonitor::detectVehicleEvents() {
     // warningEndTime = millis() + 2000;
   }
   // Detect sharp turns (high angular velocity on Z axis)
-  else if (abs(sensorData.gyro_z) > thresholds.sharp_turn)
+  else if (abs(sensorData.accel_x) > thresholds.sharp_turn)
   {
-    String direction = (sensorData.gyro_z > 0) ? "left" : "right";
+    String direction = (sensorData.gyro_x > 0) ? "left" : "right";
     network.publishEvent("sharp_turn", "alert", "Sharp " + direction + " turn detected", sensorData);
     alert.triggerAlert("SHARP TURN", "alert");
     warningActive = true;
