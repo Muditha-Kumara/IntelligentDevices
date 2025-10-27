@@ -130,7 +130,13 @@ void NetworkManager::publishEvent(String eventType, String level, String descrip
   values["accel_x"] = round(data.accel_x * 100) / 100.0;
   values["accel_y"] = round(data.accel_y * 100) / 100.0;
   values["accel_z"] = round(data.accel_z * 100) / 100.0;
+  values["gyro_x"] = round(data.gyro_x * 100) / 100.0;
+  values["gyro_y"] = round(data.gyro_y * 100) / 100.0;
   values["gyro_z"] = round(data.gyro_z * 100) / 100.0;
+  values["temperature"] = round(data.temperature * 10) / 10.0;
+  values["humidity"] = round(data.humidity * 10) / 10.0;
+  values["pressure"] = round(data.pressure * 10) / 10.0;
+  values["light_level"] = data.light_level;
   values["mic_level"] = round(data.mic_level * 100) / 100.0;
   
   String eventJson;

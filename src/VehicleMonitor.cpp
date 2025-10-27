@@ -126,17 +126,18 @@ void VehicleMonitor::detectVehicleEvents() {
     warningActive = true;
     lastWarningType = "HARD ACCEL";
     lastWarningLevel = level;
-    warningEndTime = millis() + 2000;
+    // warningEndTime = millis() + 2000;
   }
   // Detect sharp turns (high angular velocity on Z axis)
-  else if (abs(sensorData.gyro_z) > thresholds.sharp_turn) {
+  else if (abs(sensorData.gyro_z) > thresholds.sharp_turn)
+  {
     String direction = (sensorData.gyro_z > 0) ? "left" : "right";
     network.publishEvent("sharp_turn", "alert", "Sharp " + direction + " turn detected", sensorData);
     alert.triggerAlert("SHARP TURN", "alert");
     warningActive = true;
     lastWarningType = "SHARP TURN";
     lastWarningLevel = "alert";
-    warningEndTime = millis() + 2000;
+    // warningEndTime = millis() + 2000;
   }
   // Detect bumps/impacts (sudden acceleration spikes)
   else if (accel_magnitude > thresholds.bump_impact) {
@@ -145,7 +146,7 @@ void VehicleMonitor::detectVehicleEvents() {
     warningActive = true;
     lastWarningType = "BUMP/IMPACT";
     lastWarningLevel = "alert";
-    warningEndTime = millis() + 2000;
+    // warningEndTime = millis() + 2000;
   }
   // General driving quality warnings
   else if (accel_magnitude > thresholds.caution_accel) {

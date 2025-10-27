@@ -81,7 +81,7 @@ void loop()
   if (currentTime - lastDrivingMonitor >= 100)
   {
     vehicleMonitor.readSensors();
-    // vehicleMonitor.detectVehicleEvents();
+    vehicleMonitor.detectVehicleEvents();
     VehicleData data = vehicleMonitor.getSensorData();
     lastVehicleData = data;
     lastDrivingMonitor = currentTime;
