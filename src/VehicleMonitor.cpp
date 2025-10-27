@@ -108,9 +108,10 @@ void VehicleMonitor::detectVehicleEvents() {
                              sensorData.gyro_y * sensorData.gyro_y + 
                              sensorData.gyro_z * sensorData.gyro_z);
 
-  // Detect hard braking (negative X acceleration)
-  if (sensorData.accel_x < -thresholds.hard_braking) {
-    String level = (abs(sensorData.accel_x) > thresholds.critical_accel) ? "critical" : "alert";
+  // Detect hard braking (negative Y acceleration)
+  if (sensorData.accel_y < -thresholds.hard_braking)
+  {
+    String level = (abs(sensorData.accel_y) > thresholds.critical_accel) ? "critical" : "alert";
     network.publishEvent("hard_braking", level, "Hard braking detected", sensorData);
     alert.triggerAlert("HARD BRAKING", level);
     warningActive = true;
@@ -118,8 +119,9 @@ void VehicleMonitor::detectVehicleEvents() {
     lastWarningLevel = level;
    // warningEndTime = millis() + 2000;
   }
-  // Detect hard acceleration (positive X acceleration)
-  else if (sensorData.accel_x > thresholds.alert_accel) {
+  // Detect hard acceleration (positive Y acceleration)
+  else if (sensorData.accel_y > thresholds.alert_accel)
+  {
     String level = (sensorData.accel_x > thresholds.critical_accel) ? "critical" : "alert";
     network.publishEvent("hard_acceleration", level, "Hard acceleration detected", sensorData);
     alert.triggerAlert("HARD ACCEL", level);

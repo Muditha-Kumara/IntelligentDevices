@@ -171,9 +171,7 @@ void DisplayManager::showMonitoringStatus(const VehicleData& data, const Thresho
 
 void DisplayManager::showAlert(String eventType, String level) {
   carrier.display.setTextSize(2);
-  carrier.display.setCursor(90, 200);
-  carrier.display.setTextColor(DISPLAY_BLACK);
-  carrier.display.println("            ");
+  carrier.display.fillRect(90, 200, 200, 50, DISPLAY_BLACK);
   carrier.display.setCursor(90, 200);
   carrier.display.setTextColor(DISPLAY_YELLOW);
   carrier.display.println(eventType);
