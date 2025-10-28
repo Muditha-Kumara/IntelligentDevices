@@ -1,4 +1,4 @@
-# Vehicle Driving Quality Monitor (IoT Demonstration)
+# saveVehicle (IoT Demonstration)
 
 ![Project](https://img.shields.io/badge/Project-IoT%20Demo-blue) ![Board-Arduino%20Opla](https://img.shields.io/badge/Board-Arduino%20Opla-orange)
 
@@ -27,7 +27,7 @@ The device reads all built-in sensors on the Opla kit (IMU, microphone, light, t
 
 ## Software stack
 
-- Firmware: Arduino (ESP32) framework
+- Firmware: Arduino framework with PlatformIO
 - Libraries: WiFi, PubSubClient or Async MQTT client, IMU/microphone/display drivers
 - Cloud: MQTT broker (HiveMQ, Mosquitto, or cloud service) and a simple logger/notification service
 
@@ -48,23 +48,34 @@ Example event JSON:
     "accel_x": -3.8,
     "accel_y": 0.1,
     "accel_z": 9.2,
+    "gyro_x": 0.0,
+    "gyro_y": 0.0,
     "gyro_z": 0.02,
-    "mic_level": 0.75
+    "temperature": 25.0,
+    "humidity": 60.0,
+    "pressure": 1013.25,
+    "mic_level": 0.75,
+    "light_level": 120
   },
   "level": "alert"
 }
 
-Telemetry messages should include device id, timestamp, and raw/processed sensor values.
+Telemetry messages should include:
+- `device_id`, `timestamp`
+- Sensor values: `accel_x`, `accel_y`, `accel_z`, `gyro_x`, `gyro_y`, `gyro_z`, `temperature`, `humidity`, `pressure`, `mic_level`, `light_level`
 
-## Suggested thresholds (starting points)
+## Suggested thresholds (from code)
 
-- Caution: Acceleration magnitude > 2.0 m/s²
-- Alert: Acceleration magnitude > 3.5 m/s²
-- Critical: Acceleration magnitude > 5.0 m/s²
+- Caution: Acceleration magnitude > 0.5 m/s²
+- Alert: Acceleration magnitude > 0.5 m/s²
+- Critical: Acceleration magnitude > 1.5 m/s²
+- Hard braking (deceleration): `accel_y < -1.0 m/s²`
+- Hard acceleration: `accel_y > 0.5 m/s²`
+- Sharp turn: `|accel_x| > 1.0 m/s²`
+- Bump/impact: Acceleration magnitude > 3.0 m/s² (short duration)
 
-- Hard braking (deceleration): > 3.5 m/s²
-- Sharp turn: angular rate > 150°/s
-- Bump/impact: accel spike > 6.0 m/s² (short duration)
+Sampling rate: 100 ms  
+Telemetry interval: 2000 ms
 
 Tuning is required based on mounting and vehicle type.
 
@@ -80,11 +91,11 @@ Calibration steps (brief):
 
 ## Quick start (development)
 
-1. Install Arduino IDE or PlatformIO and ESP32 board packages.
+1. Install PlatformIO.
 2. Install required libraries (MQTT client, sensor drivers).
-3. Open firmware example (to be provided) and update Wi‑Fi / MQTT settings.
-4. Build and flash to Arduino Opla kit.
-5. Open serial monitor to observe logs and telemetry.
+3. Open the firmware and update Wi‑Fi / MQTT settings in `src/Config.h`.
+4. Build and flash to the Arduino Opla kit using PlatformIO.
+5. Open the serial monitor to observe logs and telemetry.
 
 ## Demonstration flow (short)
 
@@ -107,4 +118,3 @@ Recommend MIT or another permissive license. Update `LICENSE` as required.
 
 ---
 
-If you want, I can now generate starter firmware (Arduino sketch) for the Arduino Opla kit or an example MQTT logger script. Which would you like first?
