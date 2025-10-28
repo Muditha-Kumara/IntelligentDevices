@@ -1,0 +1,41 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+# Go workspace file
+*.code-workspace
+# Go build output
+bin/
+# Go modules
+/go.sum
+/go.mod
+# Go coverage
+*.coverprofile
+# Go IDE files
+.idea/
+.vscode/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+tfplan*
+*.tfvars
+*.zip
+# Sensitive files
+*.pem
+*.key
+*.env
+
+# General
+.DS_Store
+Thumbs.db
+
+lambda/main
+BUILD_DEPLOY.md
