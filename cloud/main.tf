@@ -62,9 +62,8 @@ resource "aws_sns_topic_subscription" "sms" {
 resource "aws_lambda_function" "event_processor" {
   function_name = "vehicle_event_processor"
   role          = aws_iam_role.lambda_exec.arn
-  handler       = "main"
-  runtime       = "go1.x"
-  filename      = "lambda.zip"
+  package_type  = "Image"
+  image_uri     = var.lambda_image_uri
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.events.name
@@ -100,6 +99,10 @@ resource "aws_iam_role_policy_attachment" "lambda_sns" {
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+variable "lambda_image_uri" {
+  description = "URI of the Lambda container image in ECR"
 }
 
 output "iot_thing_name" {
