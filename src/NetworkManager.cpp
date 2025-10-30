@@ -10,7 +10,14 @@ NetworkManager::NetworkManager()
 }
 
 void NetworkManager::begin() {
+  Serial.print("MQTT endpoint: ");
+  Serial.println(MQTT_SERVER);
+  Serial.print("MQTT port: ");
+  Serial.println(MQTT_PORT);
+  Serial.print("MQTT client ID: ");
+  Serial.println(DEVICE_ID);
   setupWiFi();
+  // WiFiSSLClient does not require manual certificate loading
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
   reconnectMQTT();
 }

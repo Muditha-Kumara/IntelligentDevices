@@ -105,6 +105,36 @@ variable "lambda_image_uri" {
   description = "URI of the Lambda container image in ECR"
 }
 
+resource "aws_iot_certificate" "device" {
+  active = true
+}
+
+resource "aws_iot_policy" "device_policy" {
+  name = "vehicle_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Connect",
+        "iot:Publish",
+        "iot:Subscribe",
+        "iot:Receive"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iot_policy_attachment" "device_policy_attachment" {
+  policy = aws_iot_policy.device_policy.name
+  target = aws_iot_certificate.device.arn
+}
+
 output "iot_thing_name" {
   value = aws_iot_thing.device.name
 }

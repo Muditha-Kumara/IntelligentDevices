@@ -8,9 +8,11 @@
 
 #include <Arduino.h>
 #include <WiFiNINA.h>
+#include <WiFiSSLClient.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "Config.h"
+#include "aws_certificates.h"
 
 class NetworkManager {
 public:
@@ -27,7 +29,7 @@ public:
   void setMQTTCallback(void (*callback)(char*, byte*, unsigned int));
   
 private:
-  WiFiClient wifiClient;
+  WiFiSSLClient wifiClient;
   PubSubClient mqttClient;
   
   bool wifiConnected;
