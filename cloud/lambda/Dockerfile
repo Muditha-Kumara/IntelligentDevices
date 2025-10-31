@@ -1,10 +1,8 @@
-FROM golang:1.21 AS builder
-WORKDIR /app
-COPY go.mod .
-COPY go.sum .
-COPY main.go .
-RUN go build -o bootstrap main.go
+FROM public.ecr.aws/lambda/go:1.x AS build
+WORKDIR /src
+COPY . .
+RUN go build -o main main.go
 
-FROM public.ecr.aws/lambda/go:latest
-COPY --from=builder /app/bootstrap .
-CMD ["bootstrap"]
+FROM public.ecr.aws/lambda/go:1.x
+COPY --from=build /src/main ${LAMBDA_TASK_ROOT}/main
+CMD ["main"]

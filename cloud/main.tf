@@ -124,6 +124,12 @@ resource "aws_lambda_permission" "apigw_lambda" {
   source_arn    = "${aws_apigatewayv2_api.vehicle_api.execution_arn}/*/*"
 }
 
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.vehicle_api.id
+  name        = "$default"
+  auto_deploy = true
+}
+
 output "api_endpoint" {
   value = aws_apigatewayv2_api.vehicle_api.api_endpoint
 }
