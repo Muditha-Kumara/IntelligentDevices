@@ -16,21 +16,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "iot_thing_name" {
-  description = "Name of the IoT Thing"
-  default     = "vehicle-1"
-}
-
 variable "alert_email" {
   description = "Email address to receive alerts"
 }
 
 variable "alert_sms" {
   description = "Phone number to receive SMS alerts (E.164 format, e.g. +1234567890)"
-}
-
-resource "aws_iot_thing" "device" {
-  name = var.iot_thing_name
 }
 
 resource "aws_dynamodb_table" "events" {
@@ -105,38 +96,35 @@ variable "lambda_image_uri" {
   description = "URI of the Lambda container image in ECR"
 }
 
-resource "aws_iot_certificate" "device" {
-  active = true
+resource "aws_apigatewayv2_api" "vehicle_api" {
+  name          = "vehicle-events-api"
+  protocol_type = "HTTP"
 }
 
-resource "aws_iot_policy" "device_policy" {
-  name = "vehicle_policy"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "iot:Connect",
-        "iot:Publish",
-        "iot:Subscribe",
-        "iot:Receive"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
+resource "aws_apigatewayv2_integration" "lambda_integration" {
+  api_id           = aws_apigatewayv2_api.vehicle_api.id
+  integration_type = "AWS_PROXY"
+  integration_uri  = aws_lambda_function.event_processor.invoke_arn
+  integration_method = "POST"
+  payload_format_version = "2.0"
 }
 
-resource "aws_iot_policy_attachment" "device_policy_attachment" {
-  policy = aws_iot_policy.device_policy.name
-  target = aws_iot_certificate.device.arn
+resource "aws_apigatewayv2_route" "events_route" {
+  api_id    = aws_apigatewayv2_api.vehicle_api.id
+  route_key = "POST /vehicle/events"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
 
-output "iot_thing_name" {
-  value = aws_iot_thing.device.name
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.event_processor.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.vehicle_api.execution_arn}/*/*"
+}
+
+output "api_endpoint" {
+  value = aws_apigatewayv2_api.vehicle_api.api_endpoint
 }
 
 output "dynamodb_table_name" {
