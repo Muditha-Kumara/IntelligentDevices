@@ -94,6 +94,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 variable "lambda_image_uri" {
   description = "URI of the Lambda container image in ECR"
+  default     = "201940484677.dkr.ecr.us-east-1.amazonaws.com/vehicle-lambda:latest"
 }
 
 resource "aws_apigatewayv2_api" "vehicle_api" {
