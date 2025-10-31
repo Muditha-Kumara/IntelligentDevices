@@ -55,7 +55,7 @@ struct VehicleData {
 
 struct Thresholds {
   float caution_accel = .5; // 2.0;      // m/s²
-  float alert_accel = .5;   // 3.5;                            // m/s²
+  float alert_accel = 1.0;  // 3.5;                            // m/s²
   float critical_accel = 1.5; // 5.0;                            // m/s²
   float hard_braking = 1;   // 3.5;                            // m/s²
                           //  float sharp_turn = 150.0;       // degrees/s
