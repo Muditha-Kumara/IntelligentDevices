@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -24,7 +24,15 @@ import (
 	Data       map[string]interface{} `json:"data"`
 }
 
-func HandleRequest(ctx context.Context, event VehicleEvent) error {
+func HandleRequest(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	var event VehicleEvent
+	if err := json.Unmarshal([]byte(req.Body), &event); err != nil {
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 400,
+			Body:       "Invalid request body",
+		}, nil
+	}
+
 	sess := session.Must(session.NewSession())
 	db := dynamodb.New(sess)
 	snsClient := sns.New(sess)
@@ -32,14 +40,20 @@ func HandleRequest(ctx context.Context, event VehicleEvent) error {
 	// Store event in DynamoDB
 	item, err := dynamodbattribute.MarshalMap(event)
 	if err != nil {
-		return fmt.Errorf("failed to marshal event: %v", err)
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 500,
+			Body:       "Failed to marshal event",
+		}, nil
 	}
 	_, err = db.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(os.Getenv("DYNAMODB_TABLE")),
 		Item:      item,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to put item: %v", err)
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 500,
+			Body:       "Failed to put item",
+		}, nil
 	}
 
 	// Send notification if level is alert/critical
@@ -50,10 +64,17 @@ func HandleRequest(ctx context.Context, event VehicleEvent) error {
 			Message: aws.String(string(msg)),
 		})
 		if err != nil {
-			return fmt.Errorf("failed to publish SNS: %v", err)
+			return events.APIGatewayV2HTTPResponse{
+				StatusCode: 500,
+				Body:       "Failed to publish SNS",
+			}, nil
 		}
 	}
-	return nil
+
+	return events.APIGatewayV2HTTPResponse{
+		StatusCode: 200,
+		Body:       "Event processed successfully",
+	}, nil
 }
 
 func main() {
