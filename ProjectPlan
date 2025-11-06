@@ -1,0 +1,122 @@
+# Project Plan
+
+![Project](https://img.shields.io/badge/Project-IoT%20Demo-blue) ![Board-Arduino%20Opla](https://img.shields.io/badge/Board-Arduino%20Opla-orange)
+
+## Project
+
+An IoT-based vehicle behavior monitoring system using the Arduino Opla kit and cloud integration via HTTP API
+
+## Summary
+
+This project, titled SmartDrive: IoT-Based Vehicle Behavior Monitoring and Safety Enhancement System, presents a connected solution for detecting and analyzing risky driving patterns using the Arduino Opla kit. The system collects data from onboard sensors—including accelerometer, gyroscope, temperature, microphone, and light sensors—to identify events such as harsh braking, hard acceleration, sharp turns, and bumps. Local warnings are triggered through LEDs, buzzers, and displays, while detailed telemetry and event data are transmitted to a cloud endpoint via HTTP POST. The cloud component logs events, supports remote configuration, and can notify vehicle owners or fleet managers in real time. This project demonstrates how IoT integration can improve driver safety, passenger comfort, and preventive vehicle maintenance.
+
+## Key Features
+
+- Use Arduino Opla kit and all built-in sensors
+- Local alerts: buzzer, LED, optional display
+- Event classification: hard acceleration, hard braking, sharp turn, bump/impact
+- Cloud telemetry and event logging via HTTP POST to API
+- Remote configuration via API (thresholds, sampling rate)
+
+## Schedule
+
+| **Phase**                           | **Description**                                                         | **Estimated Hours (Team Total)**               |
+| ----------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------- |
+| **1. Project Planning & Research**  | Define scope, identify components, clarify MQTT and sensor needs        | 10–12 hrs                                      |
+| **2. Hardware Setup & Calibration** | Arduino Opla sensor configuration, IMU calibration, testing connections | 15–20 hrs                                      |
+| **3. Firmware Development**         | Arduino code (sensor reading, event detection, MQTT publishing)         | 25–30 hrs                                      |
+| **4. Cloud & MQTT Integration**     | Setting up MQTT broker, topic structure, logger, dashboard              | 15 hrs                                         |
+| **5. Local Alert System**           | LED, buzzer, and display handling                                       | 8–10 hrs                                       |
+| **6. Testing & Validation**         | Simulating driving scenarios, tuning thresholds, collecting data        | 15 hrs                                         |
+| **7. Documentation & Demo Video**   | Writing README, calibration guide, preparing demo presentation          | 10–12 hrs                                      |
+| **Total Estimated Hours**           |                                                                         | **~100–115 hrs total (~35–38 hrs per person)** |
+
+
+## Roles
+
+| **Member**  | **Primary Role**               | **Main Responsibilities**                                                                                                                                                       |
+| ----------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Muditha** | *Project mgt &Integration lead*| - Develop Arduino Opla firmware (sensor fusion, threshold logic) <br> - Implement MQTT publishing/subscription <br> - Manage event detection (hard braking, bump detection)     |
+| **Nikolai** | *Cloud & Data Pipeline lead*   | - Set up MQTT broker (HiveMQ / Mosquitto) <br> - Implement data logging and dashboard <br> - Define JSON message formats and config topics <br> - Assist in integration testing |
+| **Chuks**   |*Scrum m,Testing &Documentation*| - Handle calibration, testing scripts, and demo validation <br> - Record results, fine-tune thresholds <br> - Prepare README, demo script, and final presentation video         |
+
+
+## Hardware (recommended)
+
+- Arduino Opla kit (required — use all built-in sensors)
+- Optional: external IMU (MPU6050/MPU9250) for higher accuracy
+- Buzzer or small speaker
+- RGB/status LED
+- Small OLED/LCD display
+- Stable power source for demo
+
+## Software stack
+
+- Firmware: Arduino framework with PlatformIO
+- Libraries: WiFi, HTTP client, IMU/microphone/display drivers
+- Cloud: API Gateway endpoint and Lambda function for logging/notification
+
+## Pricing strategy
+
+1. Unit Prototype Price estimates(as component was provided by school)
+
+Hardware: approximately 175€
+
+Assembly & calibration labor: approximtely50€
+
+Software and cloud setup time: 75€ (engineering cost)
+Estimated unit prototype price: ≈ 300–350 €
+
+2. Mass production estimate
+
+scaled to manufacturing (using custom cheaper sensors):;
+
+Bulk components (replacing Opla with ESP32 + IMU + mic + sensors): €45–60/unit
+
+Enclosure, assembly, testing: €25–30/unit
+
+Cloud service integration (MQTT broker, dashboard): €10/unit/year (service fee)
+
+Target retail price (mass production):
+
+€120–150 per unit ( fleet or insurance clients)
+
+Volume production cost per unit ≈ €80–90
+
+## Configuration and calibration
+
+- Support remote config via API endpoint.
+- Configurable parameters: sampling_rate, thresholds, telemetry_interval, API settings.
+
+Calibration steps (brief):
+- To calibrate, simply touch Button 2 while the device is stationary. This will collect samples to estimate bias for accel/gyro and complete calibration automatically.
+
+## Quick start (development)
+
+1. Install PlatformIO.
+2. Install required libraries (HTTP client, sensor drivers).
+3. Open the firmware and update Wi‑Fi / API endpoint settings in `src/Config.h`.
+4. Build and flash to the Arduino Opla kit using PlatformIO.
+5. Open the serial monitor to observe logs and telemetry.
+
+## Demonstration flow (short)
+
+1. Power on the Arduino Opla kit and connect to Wi‑Fi.
+2. Device publishes a "ready" telemetry message via HTTP POST.
+3. Simulate events or perform a short test ride.
+4. Device activates local warnings and sends event messages via HTTP POST.
+5. Cloud logger records events and (optionally) forwards notifications to the owner.
+
+## Deliverables
+
+- Firmware source for Arduino Opla kit
+- Minimal cloud component: API logger + notification forwarder
+- README (this file), calibration guide, and demo script
+- Short demo video or live demo
+
+## License
+
+Recommend MIT or another permissive license. Update `LICENSE` as required.
+
+---
+
