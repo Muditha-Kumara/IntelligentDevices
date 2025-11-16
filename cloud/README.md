@@ -1,13 +1,14 @@
-# Cloud Configuration for Vehicle Monitoring System
+# Cloud Backend for IntelligentDevices Vehicle Monitor
 
-This README describes the cloud-side architecture and setup for integrating IoT devices with AWS using Go (deployed as a Docker container) and Terraform.
+
+This README documents the cloud backend for the IntelligentDevices Vehicle Monitor project. For full project context and device-side setup, see [../README.md](../README.md).
+
 
 ## Overview
 - IoT devices send telemetry and event data via HTTP POST to AWS API Gateway.
-- AWS API Gateway triggers AWS Lambda (Go, deployed as Docker container image) for event processing.
-- AWS Lambda processes events and stores them in DynamoDB.
-- AWS SNS sends email and SMS notifications to clients based on event severity.
-- All infrastructure is provisioned using Terraform.
+- API Gateway triggers AWS Lambda (Go, Docker image) for event processing.
+- Lambda stores events in DynamoDB and sends notifications via SNS (email/SMS) for alerts/critical events.
+- All infrastructure is provisioned and managed using Terraform.
 
 ## AWS Services Used
 - **AWS API Gateway**: HTTP endpoint for device data ingestion.
@@ -65,7 +66,9 @@ cloud/
 - Enable logging and monitoring for all services.
 - Use multi-stage Docker builds for small Lambda images.
 
+
 ## References
+- [Project Root README](../README.md)
 - [AWS API Gateway Documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html)
 - [AWS Lambda Go](https://docs.aws.amazon.com/lambda/latest/dg/go-programming-model.html)
 - [Deploy Lambda with Docker](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html)
