@@ -12,6 +12,9 @@ AlertManager::AlertManager(MKRIoTCarrier& carrier, DisplayManager& display)
 // Refactored: Accept sensor data and send alert in one call
 #include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <TimeLib.h>
 
 void AlertManager::triggerAlert(String eventType, String level, const VehicleData &data)
 {
@@ -83,9 +86,24 @@ void AlertManager::sendAlertData(const VehicleData &data, const String &eventTyp
   WiFiSSLClient client;
   HttpClient http(client, server, port);
 
-  // Build VehicleEvent JSON expected by the Lambda
-  // { device_id, event_type, level, timestamp, data: { ... } }
-  String timestamp = String(millis()); // Fallback timestamp (ms since boot). Replace with real RTC if available.
+  // Get real-world UTC time from NTP
+  static WiFiUDP ntpUDP;
+  static NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000); // UTC, update every 60s
+  if (!timeClient.isTimeSet())
+  {
+    timeClient.begin();
+    timeClient.update();
+  }
+  else
+  {
+    timeClient.update();
+  }
+  unsigned long epochTime = timeClient.getEpochTime();
+  setTime(epochTime); // Set TimeLib to NTP time
+  char isoTime[25];
+  snprintf(isoTime, sizeof(isoTime), "%04d-%02d-%02dT%02d:%02d:%02dZ",
+           year(), month(), day(), hour(), minute(), second());
+  String timestamp = String(isoTime);
 
   String jsonPayload = "{";
   jsonPayload += "\"device_id\":\"" + String(DEVICE_ID) + "\",";
