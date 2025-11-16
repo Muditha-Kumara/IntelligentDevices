@@ -117,11 +117,11 @@ void DisplayManager::drawStaticUI()
   carrier.display.print("Press:");
 
   // Bottom bar - within safe area
-  carrier.display.fillRoundRect(15, 195, 226, 30, 5, COLOR_NAVY);
-  carrier.display.setTextSize(1);
-  carrier.display.setCursor(90, 205);
+  carrier.display.fillRoundRect(15, 195, 226, 60, 5, COLOR_NAVY);
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(50, 205);
   carrier.display.setTextColor(COLOR_LIME);
-  carrier.display.println("MONITORING");
+  carrier.display.println("MONITORING...");
 }
 
 void DisplayManager::drawInitialUI()
@@ -319,12 +319,12 @@ void DisplayManager::updateEventIndicator(const String &eventType, const String 
     color = COLOR_ORANGE;
 
   // Update bottom bar text - compact and centered
-  carrier.display.fillRect(25, 200, 200, 20, COLOR_NAVY);
-  carrier.display.setTextSize(1);
-  carrier.display.setCursor(30, 202);
+  carrier.display.fillRect(25, 195, 200, 60, COLOR_NAVY);
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(50, 198);
   carrier.display.setTextColor(color);
   carrier.display.print(eventType);
-  carrier.display.setCursor(30, 212);
+  carrier.display.setCursor(80, 215);
   carrier.display.setTextColor(COLOR_WHITE);
   carrier.display.print(level);
 
@@ -340,11 +340,11 @@ void DisplayManager::updateEventIndicator(const String &eventType, const String 
 // Clear event indicator
 void DisplayManager::clearEventIndicator()
 {
-  carrier.display.fillRect(25, 200, 200, 20, COLOR_NAVY);
-  carrier.display.setTextSize(1);
-  carrier.display.setCursor(25, 205);
+  carrier.display.fillRect(25, 195, 200, 60, COLOR_NAVY);
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(50, 205);
   carrier.display.setTextColor(COLOR_LIME);
-  carrier.display.println("MONITORING");
+  carrier.display.println("MONITORING...");
 
   carrier.leds.clear();
   carrier.leds.show();
