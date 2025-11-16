@@ -16,11 +16,11 @@ public:
   void begin();
   void showInitializing();
   void showCalibrating(int progress);
-  void showSystemStatus(bool wifiConnected, bool mqttConnected, bool calibrationComplete);
+  void showSystemStatus(bool wifiConnected, bool calibrationComplete);
   void showMonitoringStatus(const VehicleData& data, const Thresholds& thresholds, 
                             bool wifiConnected, bool mqttConnected, bool systemReady);
   void showAlert(String eventType, String level);
-  void updateStatusLED(bool systemReady, bool wifiConnected, bool mqttConnected);
+  void updateStatusLED(bool systemReady, bool wifiConnected);
   void setLEDColor(uint32_t color);
   void clearLEDs();
   void flashLEDs(uint32_t color, int times, int delayMs);

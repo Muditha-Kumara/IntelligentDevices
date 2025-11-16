@@ -1,3 +1,4 @@
+
 /**
  * VehicleMonitor.cpp
  * Implementation of core vehicle monitoring logic
@@ -5,8 +6,9 @@
 
 #include "VehicleMonitor.h"
 
-VehicleMonitor::VehicleMonitor(MKRIoTCarrier& carrier, NetworkManager& network, AlertManager& alert)
-  : carrier(carrier), network(network), alert(alert) {
+VehicleMonitor::VehicleMonitor(MKRIoTCarrier &carrier, AlertManager &alert)
+    : carrier(carrier), alert(alert)
+{
 }
 
 void VehicleMonitor::calibrateSensors() {
@@ -112,18 +114,18 @@ void VehicleMonitor::detectVehicleEvents() {
   if (sensorData.accel_y < -thresholds.hard_braking)
   {
     String level = (abs(sensorData.accel_y) > thresholds.critical_accel) ? "critical" : "alert";
-    network.publishEvent("hard_braking", level, "Hard braking detected", sensorData);
+    // TODO: Send event via API POST request: hard_braking
     alert.triggerAlert("HARD BRAKING", level);
     warningActive = true;
     lastWarningType = "HARD BRAKING";
     lastWarningLevel = level;
-   // warningEndTime = millis() + 2000;
+    // warningEndTime = millis() + 2000;
   }
   // Detect hard acceleration (positive Y acceleration)
   else if (sensorData.accel_y > thresholds.alert_accel)
   {
     String level = (sensorData.accel_x > thresholds.critical_accel) ? "critical" : "alert";
-    network.publishEvent("hard_acceleration", level, "Hard acceleration detected", sensorData);
+    // TODO: Send event via API POST request: hard_acceleration
     alert.triggerAlert("HARD ACCEL", level);
     warningActive = true;
     lastWarningType = "HARD ACCEL";
@@ -134,7 +136,7 @@ void VehicleMonitor::detectVehicleEvents() {
   else if (abs(sensorData.accel_x) > thresholds.sharp_turn)
   {
     String direction = (sensorData.gyro_x > 0) ? "left" : "right";
-    network.publishEvent("sharp_turn", "alert", "Sharp " + direction + " turn detected", sensorData);
+    // TODO: Send event via API POST request: sharp_turn
     alert.triggerAlert("SHARP TURN", "alert");
     warningActive = true;
     lastWarningType = "SHARP TURN";
@@ -142,8 +144,9 @@ void VehicleMonitor::detectVehicleEvents() {
     // warningEndTime = millis() + 2000;
   }
   // Detect bumps/impacts (sudden acceleration spikes)
-  else if (accel_magnitude > thresholds.bump_impact) {
-    network.publishEvent("bump_impact", "alert", "Road bump or impact detected", sensorData);
+  else if (accel_magnitude > thresholds.bump_impact)
+  {
+    // TODO: Send event via API POST request: bump_impact
     alert.triggerAlert("BUMP/IMPACT", "alert");
     warningActive = true;
     lastWarningType = "BUMP/IMPACT";

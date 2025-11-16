@@ -9,13 +9,13 @@
 #include <Arduino.h>
 #include <Arduino_MKRIoTCarrier.h>
 #include "Config.h"
-#include "NetworkManager.h"
+// ...existing code...
 #include "AlertManager.h"
 
 class VehicleMonitor {
 public:
-  VehicleMonitor(MKRIoTCarrier& carrier, NetworkManager& network, AlertManager& alert);
-  
+  VehicleMonitor(MKRIoTCarrier &carrier, AlertManager &alert);
+
   void calibrateSensors();
   void readSensors();
   void detectVehicleEvents();
@@ -30,14 +30,13 @@ public:
   void clearWarning() { warningActive = false; lastWarningType = ""; lastWarningLevel = ""; }
   
 private:
-  MKRIoTCarrier& carrier;
-  NetworkManager& network;
+  MKRIoTCarrier &carrier;
   AlertManager& alert;
-  
+
   VehicleData sensorData;
   Thresholds thresholds;
   CalibrationData calibration;
-  
+
   bool warningActive = false;
   unsigned long warningEndTime = 0;
   String lastWarningType = "";

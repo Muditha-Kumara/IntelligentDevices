@@ -43,7 +43,8 @@ void DisplayManager::showCalibrating(int progress) {
   carrier.leds.show();
 }
 
-void DisplayManager::showSystemStatus(bool wifiConnected, bool mqttConnected, bool calibrationComplete) {
+void DisplayManager::showSystemStatus(bool wifiConnected, bool calibrationComplete)
+{
   carrier.display.fillScreen(DISPLAY_BLACK);
   carrier.display.setTextColor(DISPLAY_WHITE);
   carrier.display.setTextSize(2);
@@ -55,46 +56,14 @@ void DisplayManager::showSystemStatus(bool wifiConnected, bool mqttConnected, bo
   carrier.display.print("WiFi: ");
   carrier.display.setTextColor(wifiConnected ? DISPLAY_GREEN : DISPLAY_RED);
   carrier.display.println(wifiConnected ? "OK" : "FAILED");
-  
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setCursor(20, 65);
-  carrier.display.print("MQTT: ");
-  carrier.display.setTextColor(mqttConnected ? DISPLAY_GREEN : DISPLAY_RED);
-  carrier.display.println(mqttConnected ? "OK" : "FAILED");
-  
+
   carrier.display.setTextColor(DISPLAY_WHITE);
   carrier.display.setCursor(20, 80);
   carrier.display.print("Calibration: ");
   carrier.display.setTextColor(calibrationComplete ? DISPLAY_GREEN : DISPLAY_RED);
   carrier.display.println(calibrationComplete ? "OK" : "PENDING");
-  
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setCursor(20, 100);
-  carrier.display.println("Device ID: " + String(DEVICE_ID));
-  
-  carrier.display.setCursor(20, 115);
-  carrier.display.println("MQTT Topics:");
-  carrier.display.setCursor(20, 125);
-  carrier.display.setTextSize(1);
-  carrier.display.println("- " + TELEMETRY_TOPIC);
-  carrier.display.setCursor(20, 135);
-  carrier.display.println("- " + EVENTS_TOPIC);
-  
-  if (wifiConnected && mqttConnected && calibrationComplete) {
-    carrier.display.setCursor(20, 150);
-    carrier.display.setTextColor(DISPLAY_GREEN);
-    carrier.display.println("READY FOR MONITORING!");
-    
-    // Success LED pattern
-    for (int i = 0; i < 2; i++) {
-      carrier.leds.fill(COLOR_GREEN, 0, 5);
-      carrier.leds.show();
-      delay(500);
-      carrier.leds.fill(0, 0, 5);
-      carrier.leds.show();
-      delay(200);
-    }
-  }
+
+  // ...existing code...
 }
 
 void DisplayManager::showMonitoringStatus(const VehicleData& data, const Thresholds& thresholds,
@@ -177,10 +146,14 @@ void DisplayManager::showAlert(String eventType, String level) {
   carrier.display.println(eventType);
 }
 
-void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected, bool mqttConnected) {
-  if (systemReady && wifiConnected && mqttConnected) {
+void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected)
+{
+  if (systemReady && wifiConnected)
+  {
     carrier.leds.setPixelColor(2, COLOR_GREEN);
-  } else {
+  }
+  else
+  {
     carrier.leds.setPixelColor(2, COLOR_RED);
   }
   carrier.leds.show();

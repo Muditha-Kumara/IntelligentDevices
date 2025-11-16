@@ -20,9 +20,7 @@ extern const char* DEVICE_ID;
 // ========================================
 // MQTT Topics
 // ========================================
-const String TELEMETRY_TOPIC = "devices/" + String(DEVICE_ID) + "/telemetry";
-const String EVENTS_TOPIC = "devices/" + String(DEVICE_ID) + "/events";
-const String CONFIG_TOPIC = "devices/" + String(DEVICE_ID) + "/config";
+// MQTT Topics removed
 
 // ========================================
 // LED Colors

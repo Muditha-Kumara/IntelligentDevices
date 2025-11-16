@@ -14,8 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-// Event structure matches your IoT device payload
-// Adjust fields as needed
+
  type VehicleEvent struct {
 	DeviceID   string  `json:"device_id"`
 	EventType  string  `json:"event_type"`
