@@ -11,18 +11,17 @@ AlertManager::AlertManager(MKRIoTCarrier& carrier, DisplayManager& display)
 
 void AlertManager::triggerAlert(String eventType, String level) {
   Serial.println("ALERT: " + eventType + " (" + level + ")");
-  
-  // Show alert on display
-  display.showAlert(eventType, level);
-  
+
+  // Show alert indicator in bottom bar (doesn't reset UI)
+  display.updateEventIndicator(eventType, level);
+
   // Play LED pattern
   playLEDPattern(level);
   
   // Play audio alert
   playWarningTone();
 
-  // Show alert for 2 seconds
-  // delay(1000);
+  // No delay - let the main loop handle timing
 }
 
 void AlertManager::playLEDPattern(String level) {

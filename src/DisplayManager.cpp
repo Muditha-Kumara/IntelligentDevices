@@ -15,32 +15,47 @@ void DisplayManager::begin() {
 }
 
 void DisplayManager::showInitializing() {
-  carrier.display.fillScreen(DISPLAY_BLACK);
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(30, 75);
-  carrier.display.println("Vehicle Monitor");
-  carrier.display.setCursor(30, 150);
-  carrier.display.println("Initializing...");
+  animateBootSequence();
 }
 
-void DisplayManager::showCalibrating(int progress) {
-  carrier.display.fillScreen(DISPLAY_BLACK);
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(20, 20);
-  carrier.display.println("Calibrating...");
-  carrier.display.setCursor(20, 40);
-  carrier.display.println("Keep device still");
-  
-  carrier.display.setCursor(20, 80);
-  carrier.display.print("Progress: ");
-  carrier.display.print(progress);
-  carrier.display.println("%");
-  
-  // Show progress indicator
-  carrier.leds.fill(COLOR_YELLOW, 0, 5);
-  carrier.leds.show();
+void DisplayManager::showCalibrationProgress(int progress)
+{
+  static int lastProgress = -1;
+
+  if (lastProgress < 0)
+  {
+    // First time - draw everything
+    carrier.display.fillScreen(0x0000);
+    drawCarIcon(112, 50, COLOR_CYAN);
+
+    carrier.display.setTextSize(2);
+    carrier.display.setCursor(45, 100);
+    carrier.display.setTextColor(COLOR_CYAN);
+    carrier.display.println("CALIBRATE");
+
+    carrier.display.setTextSize(1);
+    carrier.display.setCursor(55, 120);
+    carrier.display.setTextColor(COLOR_ORANGE);
+    carrier.display.println("Keep still");
+  }
+
+  // Only update progress bar if changed
+  if (progress != lastProgress)
+  {
+    drawProgressBar(150, progress, COLOR_LIME);
+    lastProgress = progress;
+
+    // Update LEDs
+    int ledsToLight = progress / 20;
+    for (int i = 0; i < 5; i++)
+    {
+      carrier.leds.setPixelColor(i, i < ledsToLight ? COLOR_YELLOW : 0);
+    }
+    carrier.leds.show();
+  }
+
+  if (progress >= 100)
+    lastProgress = -1; // Reset for next time
 }
 
 void DisplayManager::showSystemStatus(bool wifiConnected, bool calibrationComplete)
@@ -66,84 +81,107 @@ void DisplayManager::showSystemStatus(bool wifiConnected, bool calibrationComple
   // ...existing code...
 }
 
-void DisplayManager::showMonitoringStatus(const VehicleData& data, const Thresholds& thresholds,
-                                          bool wifiConnected, bool mqttConnected, bool systemReady) {
-  carrier.display.fillScreen(DISPLAY_BLACK);
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setTextSize(1);
-  
-  // Title
-  carrier.display.setCursor(60, 5);
+void DisplayManager::drawStaticUI()
+{
+  // Draw static elements that don't change
+  // 256x256 display, but use safe area to avoid rounded corners
+  carrier.display.fillScreen(0x0000);
+
+  // Top bar - keep within safe area (leave margin for rounded corners)
+  carrier.display.fillRoundRect(15, 5, 226, 30, 5, COLOR_NAVY);
+  drawCarIcon(40, 8, COLOR_ORANGE);
   carrier.display.setTextSize(2);
-  carrier.display.println("Vehicle Monitor");
-  
-  // Connection status
+  carrier.display.setCursor(80, 12);
+  carrier.display.setTextColor(COLOR_CYAN);
+  carrier.display.println("VEHICLE");
+
+  // Gauge backgrounds - centered and spaced properly
+  carrier.display.drawCircle(75, 95, 35, COLOR_CYAN);
+  carrier.display.drawCircle(180, 95, 35, COLOR_ORANGE);
+
+  // Labels under gauges
   carrier.display.setTextSize(1);
-  carrier.display.setCursor(5, 25);
-  carrier.display.print("WiFi: ");
-  carrier.display.setTextColor(wifiConnected ? DISPLAY_GREEN : DISPLAY_RED);
-  carrier.display.println(wifiConnected ? "Connected" : "Disconnected");
-  
-  carrier.display.setCursor(5, 35);
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.print("MQTT: ");
-  carrier.display.setTextColor(mqttConnected ? DISPLAY_GREEN : DISPLAY_RED);
-  carrier.display.println(mqttConnected ? "Connected" : "Disconnected");
-  
-  // Sensor readings
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setCursor(5, 50);
-  carrier.display.print("Accel: ");
-  carrier.display.print(sqrt(data.accel_x * data.accel_x + 
-                           data.accel_y * data.accel_y + 
-                           data.accel_z * data.accel_z), 2);
-  carrier.display.println(" m/s2");
-  
-  carrier.display.setCursor(5, 60);
-  carrier.display.print("Gyro: ");
-  carrier.display.print(abs(data.gyro_z), 1);
-  carrier.display.println(" deg/s");
-  
-  carrier.display.setCursor(5, 75);
-  carrier.display.print("Temp: ");
-  carrier.display.print(data.temperature, 1);
-  carrier.display.println(" C");
-  
-  carrier.display.setCursor(5, 85);
-  carrier.display.print("Humidity: ");
-  carrier.display.print(data.humidity, 1);
-  carrier.display.println(" %");
-  
-  carrier.display.setCursor(5, 95);
-  carrier.display.print("Pressure: ");
-  carrier.display.print(data.pressure, 1);
-  carrier.display.println(" kPa");
-  
-  // Thresholds
-  carrier.display.setCursor(5, 110);
-  carrier.display.setTextColor(DISPLAY_GREEN);
-  carrier.display.print("Thresholds:");
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setCursor(5, 120);
-  carrier.display.print("Alert: ");
-  carrier.display.print(thresholds.alert_accel, 1);
-  carrier.display.print(" Critical: ");
-  carrier.display.println(thresholds.critical_accel, 1);
-  
-  // Instructions
-  carrier.display.setCursor(5, 135);
-  carrier.display.setTextColor(DISPLAY_GREEN);
-  carrier.display.println("Press center button");
-  carrier.display.setCursor(5, 145);
-  carrier.display.println("to recalibrate");
+  carrier.display.setCursor(62, 135);
+  carrier.display.setTextColor(COLOR_WHITE);
+  carrier.display.println("Accel");
+  carrier.display.setCursor(170, 135);
+  carrier.display.println("Temp");
+
+  // Data area labels - compact layout
+  carrier.display.setCursor(20, 160);
+  carrier.display.setTextColor(COLOR_TEAL);
+  carrier.display.print("Humid:");
+
+  carrier.display.setCursor(20, 175);
+  carrier.display.setTextColor(COLOR_PURPLE);
+  carrier.display.print("Press:");
+
+  // Bottom bar - within safe area
+  carrier.display.fillRoundRect(15, 195, 226, 30, 5, COLOR_NAVY);
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(90, 205);
+  carrier.display.setTextColor(COLOR_LIME);
+  carrier.display.println("MONITORING");
 }
 
-void DisplayManager::showAlert(String eventType, String level) {
+void DisplayManager::drawInitialUI()
+{
+  drawStaticUI();
+  lastAccelMagnitude = -1;
+  lastTemp = -999;
+  lastHumidity = -999;
+  lastPressure = -999;
+  lastWifiStatus = false;
+  lastMqttStatus = false;
+}
+
+void DisplayManager::showAlert(String eventType, String level)
+{
+  // Determine color based on level
+  uint16_t alertColor = COLOR_YELLOW;
+  if (level == "critical")
+  {
+    alertColor = COLOR_RED;
+  }
+  else if (level == "warning")
+  {
+    alertColor = COLOR_ORANGE;
+  }
+
+  // Flash animation
+  for (int i = 0; i < 3; i++)
+  {
+    carrier.display.fillRect(0, 0, 240, 240, alertColor);
+    delay(100);
+    carrier.display.fillRect(0, 0, 240, 240, 0x0000);
+    delay(100);
+  }
+
+  // Draw alert box
+  carrier.display.fillScreen(0x0000);
+  carrier.display.fillRoundRect(20, 70, 200, 100, 10, alertColor);
+  carrier.display.fillRoundRect(25, 75, 190, 90, 8, 0x0000);
+
+  // Alert icon (exclamation mark)
+  carrier.display.fillCircle(120, 100, 15, alertColor);
+  carrier.display.fillRect(117, 90, 6, 15, 0x0000);
+  carrier.display.fillCircle(120, 110, 3, 0x0000);
+
+  // Alert text
   carrier.display.setTextSize(2);
-  carrier.display.fillRect(90, 200, 200, 50, DISPLAY_BLACK);
-  carrier.display.setCursor(90, 200);
-  carrier.display.setTextColor(DISPLAY_YELLOW);
+  carrier.display.setCursor(50, 130);
+  carrier.display.setTextColor(alertColor);
+  String upperLevel = level;
+  upperLevel.toUpperCase();
+  carrier.display.println(upperLevel);
+
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(40, 150);
+  carrier.display.setTextColor(COLOR_WHITE);
   carrier.display.println(eventType);
+
+  // Flash LEDs
+  flashLEDs(alertColor, 5, 200);
 }
 
 void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected)
@@ -180,86 +218,239 @@ void DisplayManager::flashLEDs(uint32_t color, int times, int delayMs) {
   }
 }
 
-void DisplayManager::drawMonitoringUI() {
-  carrier.display.fillScreen(DISPLAY_BLACK);
-  carrier.display.setTextColor(DISPLAY_WHITE);
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(60, 10);
-  carrier.display.println("Vehicle Monitor");
-
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(30, 50);
-  carrier.display.println("Accel:");
-  // carrier.display.setCursor(30, 80);
-  // carrier.display.println("Gyro:");
-  carrier.display.setCursor(30, 110);
-  carrier.display.println("Temp:");
-  carrier.display.setCursor(30, 140);
-  carrier.display.println("Humidity:");
-  carrier.display.setCursor(30, 170);
-  carrier.display.println("Pressure:");
-
-  // Reserve area for warning message at bottom
-  carrier.display.setTextSize(2);
-  carrier.display.setCursor(40, 200);
-  carrier.display.setTextColor(DISPLAY_YELLOW);
-  carrier.display.println("Msg:");
-}
-
-void DisplayManager::updateWarningMsg(const String& msg) {
-  
-}
-
-void DisplayManager::updateAccelValue(float x, float y, float z)
+// Update acceleration gauge only
+void DisplayManager::updateAccelGauge(float x, float y, float z)
 {
-  carrier.display.setTextColor(DISPLAY_GREEN);
+  float magnitude = sqrt(x * x + y * y + z * z) - 1;
+
+  // Only update if changed significantly
+  if (abs(magnitude - lastAccelMagnitude) < 0.1)
+    return;
+  lastAccelMagnitude = magnitude;
+
+  // Clear gauge area
+  carrier.display.fillCircle(75, 95, 33, 0x0000);
+
+  // Draw gauge value
+  drawGauge(75, 95, 32, magnitude * 10, 10.0, COLOR_CYAN);
+
+  // Update numeric value
   carrier.display.setTextSize(2);
-  carrier.display.fillRect(00, 80, 240, 50, DISPLAY_BLACK); // Clear previous value area for three rows
-  carrier.display.setCursor(5, 80);
-  carrier.display.print("X:");
-  carrier.display.print(x, 2);
-  carrier.display.setCursor(80, 80);
-  carrier.display.print("Y:");
-  carrier.display.print(y, 2);
-  carrier.display.setCursor(160, 80);
-  carrier.display.print("Z:");
-  carrier.display.print(z, 2);
-  carrier.display.setCursor(180, 50);
-  carrier.display.print("m/s2"); // Show unit only once at the end
+  carrier.display.fillRect(52, 90, 46, 10, 0x0000);
+  carrier.display.setCursor(55, 90);
+  carrier.display.setTextColor(COLOR_CYAN);
+  carrier.display.print(magnitude, 1);
 }
 
-void DisplayManager::updateGyroValue(float value) {
-  carrier.display.setTextColor(DISPLAY_GREEN);
+// Update temperature gauge only
+void DisplayManager::updateTempGauge(float temp)
+{
+  if (abs(temp - lastTemp) < 0.5)
+    return;
+  lastTemp = temp;
+
+  // Clear gauge area
+  carrier.display.fillCircle(180, 95, 33, 0x0000);
+
+  // Draw gauge
+  drawGauge(180, 95, 32, temp, 50.0, COLOR_ORANGE);
+
+  // Update numeric value
   carrier.display.setTextSize(2);
-  carrier.display.fillRect(160, 80, 80, 25, DISPLAY_BLACK);
-  carrier.display.setCursor(160, 80);
-  carrier.display.print(value, 1);
-  carrier.display.print(" deg/s");
+  carrier.display.fillRect(160, 90, 40, 10, 0x0000);
+  carrier.display.setCursor(163, 90);
+  carrier.display.setTextColor(COLOR_ORANGE);
+  carrier.display.print(temp, 1);
 }
 
-void DisplayManager::updateTempValue(float value) {
-  carrier.display.setTextColor(DISPLAY_GREEN);
-  carrier.display.setTextSize(2);
-  carrier.display.fillRect(160, 110, 80, 25, DISPLAY_BLACK);
-  carrier.display.setCursor(160, 110);
-  carrier.display.print(value, 1);
-  carrier.display.print(" C");
+// Update sensor values efficiently
+void DisplayManager::updateSensorValues(const VehicleData &data)
+{
+  carrier.display.setTextSize(1);
+
+  // Update humidity if changed - compact display
+  if (abs(data.humidity - lastHumidity) > 0.5)
+  {
+    lastHumidity = data.humidity;
+    carrier.display.fillRect(70, 160, 70, 8, 0x0000);
+    carrier.display.setCursor(70, 160);
+    carrier.display.setTextColor(COLOR_WHITE);
+    carrier.display.print(data.humidity, 1);
+    carrier.display.print("%");
+  }
+
+  // Update pressure if changed - compact display
+  if (abs(data.pressure - lastPressure) > 0.1)
+  {
+    lastPressure = data.pressure;
+    carrier.display.fillRect(70, 175, 80, 8, 0x0000);
+    carrier.display.setCursor(70, 175);
+    carrier.display.setTextColor(COLOR_WHITE);
+    carrier.display.print(data.pressure, 1);
+    carrier.display.print("kPa");
+  }
 }
 
-void DisplayManager::updateHumidityValue(float value) {
-  carrier.display.setTextColor(DISPLAY_GREEN);
-  carrier.display.setTextSize(2);
-  carrier.display.fillRect(160, 140, 80, 25, DISPLAY_BLACK);
-  carrier.display.setCursor(160, 140);
-  carrier.display.print(value, 1);
-  carrier.display.print(" %");
+// Update connection status indicators
+void DisplayManager::updateConnectionStatus(bool wifiConnected, bool mqttConnected)
+{
+  // WiFi indicator - positioned safely within top bar
+  if (wifiConnected != lastWifiStatus)
+  {
+    lastWifiStatus = wifiConnected;
+    carrier.display.fillCircle(200, 18, 5, wifiConnected ? COLOR_LIME : DISPLAY_RED);
+  }
+
+  // MQTT indicator - positioned safely within top bar
+  if (mqttConnected != lastMqttStatus)
+  {
+    lastMqttStatus = mqttConnected;
+    carrier.display.fillCircle(220, 18, 5, mqttConnected ? COLOR_LIME : DISPLAY_RED);
+  }
 }
 
-void DisplayManager::updatePressureValue(float value) {
-  carrier.display.setTextColor(DISPLAY_GREEN);
+// Show event indicator in bottom bar
+void DisplayManager::updateEventIndicator(const String &eventType, const String &level)
+{
+  uint16_t color = COLOR_YELLOW;
+  if (level == "critical")
+    color = DISPLAY_RED;
+  else if (level == "alert")
+    color = COLOR_ORANGE;
+
+  // Update bottom bar text - compact and centered
+  carrier.display.fillRect(25, 200, 200, 20, COLOR_NAVY);
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(30, 202);
+  carrier.display.setTextColor(color);
+  carrier.display.print(eventType);
+  carrier.display.setCursor(30, 212);
+  carrier.display.setTextColor(COLOR_WHITE);
+  carrier.display.print(level);
+
+  // Flash LEDs
+  for (int i = 0; i < 5; i++)
+  {
+    carrier.leds.setPixelColor(i, color == DISPLAY_RED ? COLOR_RED : color == COLOR_ORANGE ? COLOR_ORANGE
+                                                                                           : COLOR_YELLOW);
+  }
+  carrier.leds.show();
+}
+
+// Clear event indicator
+void DisplayManager::clearEventIndicator()
+{
+  carrier.display.fillRect(25, 200, 200, 20, COLOR_NAVY);
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(25, 205);
+  carrier.display.setTextColor(COLOR_LIME);
+  carrier.display.println("MONITORING");
+
+  carrier.leds.clear();
+  carrier.leds.show();
+}
+
+// Draw car icon
+void DisplayManager::drawCarIcon(int x, int y, uint16_t color)
+{
+  // Simple car body
+  carrier.display.fillRoundRect(x, y + 8, 32, 16, 4, color);
+  carrier.display.fillRoundRect(x + 6, y, 20, 12, 3, color);
+
+  // Windows
+  carrier.display.fillRect(x + 8, y + 2, 6, 6, 0x0000);
+  carrier.display.fillRect(x + 18, y + 2, 6, 6, 0x0000);
+
+  // Wheels
+  carrier.display.fillCircle(x + 8, y + 24, 4, COLOR_WHITE);
+  carrier.display.fillCircle(x + 24, y + 24, 4, COLOR_WHITE);
+  carrier.display.fillCircle(x + 8, y + 24, 2, 0x4208);
+  carrier.display.fillCircle(x + 24, y + 24, 2, 0x4208);
+
+  // Lights
+  carrier.display.fillCircle(x + 2, y + 12, 2, COLOR_YELLOW);
+  carrier.display.fillCircle(x + 30, y + 12, 2, COLOR_RED);
+}
+
+// Draw progress bar with color
+void DisplayManager::drawProgressBar(int y, int progress, uint16_t color)
+{
+  int barWidth = 180;
+  int barHeight = 18;
+  int x = (256 - barWidth) / 2; // Center on 256px display
+
+  // Border
+  carrier.display.drawRoundRect(x, y, barWidth, barHeight, 5, COLOR_WHITE);
+
+  // Fill
+  int fillWidth = (barWidth - 4) * progress / 100;
+  carrier.display.fillRoundRect(x + 2, y + 2, fillWidth, barHeight - 4, 3, color);
+
+  // Percentage text
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(x + barWidth / 2 - 12, y + 5);
+  carrier.display.setTextColor(progress > 50 ? 0x0000 : COLOR_WHITE);
+  carrier.display.print(progress);
+  carrier.display.print("%");
+}
+
+// Animated boot sequence
+void DisplayManager::animateBootSequence()
+{
+  carrier.display.fillScreen(0x0000);
+
+  // Step 1: Logo fade in - centered for 256x256
+  for (int i = 0; i < 5; i++)
+  {
+    carrier.display.fillScreen(0x0000);
+    drawCarIcon(100, 80, i % 2 == 0 ? COLOR_CYAN : COLOR_ORANGE);
+    delay(200);
+  }
+
+  carrier.display.fillScreen(0x0000);
+  drawCarIcon(100, 80, COLOR_ORANGE);
+
+  // Step 2: Loading text - centered
   carrier.display.setTextSize(2);
-  carrier.display.fillRect(160, 170, 80, 25, DISPLAY_BLACK);
-  carrier.display.setCursor(160, 170);
-  carrier.display.print(value, 1);
-  carrier.display.print(" kPa");
+  carrier.display.setCursor(65, 130);
+  carrier.display.setTextColor(COLOR_CYAN);
+  carrier.display.println("Starting");
+
+  // Step 3: Progress bar
+  for (int p = 0; p <= 100; p += 10)
+  {
+    drawProgressBar(1550, p, COLOR_LIME);
+    delay(100);
+  }
+
+  delay(500);
+}
+
+// Draw gauge arc efficiently
+void DisplayManager::drawGauge(int centerX, int centerY, int radius, float value, float maxValue, uint16_t color)
+{
+  // Draw arc for value (simplified - just fill segments)
+  float percentage = (value / maxValue);
+  if (percentage > 1.0)
+    percentage = 1.0;
+
+  int segments = (int)(percentage * 10); // 0-10 segments
+
+  for (int i = 0; i < segments; i++)
+  {
+    float angle = 180 - (i * 18); // Distribute across 180 degrees
+    float rad = angle * 3.14159 / 180.0;
+    int x1 = centerX + (radius - 8) * cos(rad);
+    int y1 = centerY - (radius - 8) * sin(rad);
+    int x2 = centerX + (radius - 2) * cos(rad);
+    int y2 = centerY - (radius - 2) * sin(rad);
+
+    for (int j = 0; j < 3; j++)
+    {
+      float rad2 = (angle - j) * 3.14159 / 180.0;
+      int x3 = centerX + (radius - 5) * cos(rad2);
+      int y3 = centerY - (radius - 5) * sin(rad2);
+      carrier.display.drawLine(x3, y3, centerX + radius * cos(rad2), centerY - radius * sin(rad2), color);
+    }
+  }
 }

@@ -38,7 +38,18 @@ const uint16_t DISPLAY_BLACK = 0x0000;
 const uint16_t DISPLAY_WHITE = 0xFFFF;
 const uint16_t DISPLAY_RED = 0xF800;
 const uint16_t DISPLAY_GREEN = 0x07E0;
-const uint16_t DISPLAY_YELLOW = 0xF8E0;
+const uint16_t DISPLAY_YELLOW = 0xFFE0;
+
+// Additional vibrant colors for UI
+const uint16_t COLOR_CYAN = 0x07FF;    // Bright cyan
+const uint16_t COLOR_MAGENTA = 0xF81F; // Magenta
+const uint16_t COLOR_PURPLE = 0x780F;  // Purple
+const uint16_t COLOR_PINK = 0xFE19;    // Pink
+const uint16_t COLOR_LIME = 0x07E0;    // Lime green
+const uint16_t COLOR_TEAL = 0x0410;    // Teal
+const uint16_t COLOR_NAVY = 0x000F;    // Navy blue
+const uint16_t COLOR_MAROON = 0x7800;  // Maroon
+const uint16_t COLOR_WHITE = 0xFFFF;   // White
 
 // ========================================
 // Data Structures

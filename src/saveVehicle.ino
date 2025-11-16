@@ -32,22 +32,15 @@ void setup()
 
   // Initialize display
   displayManager.begin();
-  displayManager.showInitializing();
+  displayManager.animateBootSequence();
 
   // Calibrate sensors
-  displayManager.showCalibrating(0);
   vehicleMonitor.calibrateSensors();
   displayManager.flashLEDs(COLOR_GREEN, 2, 500);
+  delay(500);
 
-  // Show system status
-  displayManager.showSystemStatus(
-      WiFi.status() == WL_CONNECTED,
-      vehicleMonitor.isCalibrationComplete());
-  delay(1000);
-
-  // Draw interactive UI for monitoring (round display)
-  displayManager.drawMonitoringUI();
-  displayManager.updateWarningMsg(""); // Initialize warning message area
+  // Draw initial UI (static elements + gauges)
+  displayManager.drawInitialUI();
 
   systemReady = true;
   Serial.println("System ready for vehicle monitoring!");
@@ -59,7 +52,6 @@ void loop()
     return;
 
   unsigned long currentTime = millis();
-  Thresholds &thresholds = vehicleMonitor.getThresholds();
 
   static unsigned long lastDrivingMonitor = 0;
   static unsigned long lastDisplayRefresh = 0;
@@ -67,6 +59,7 @@ void loop()
   static VehicleData lastVehicleData;
   static float lastTemp = -1000;
   static float lastHumidity = -1000;
+  static bool lastEventActive = false;
 
   // Monitor driving status every 100ms
   if (currentTime - lastDrivingMonitor >= 100)
@@ -76,39 +69,71 @@ void loop()
     VehicleData data = vehicleMonitor.getSensorData();
     lastVehicleData = data;
     lastDrivingMonitor = currentTime;
+  }
 
-    // Update sensor values in permanent UI
-    displayManager.updateAccelValue(lastVehicleData.accel_x, lastVehicleData.accel_y, lastVehicleData.accel_z);
-    // displayManager.updateGyroValue(abs(lastVehicleData.gyro_z));
-    displayManager.updateTempValue(lastTemp);
-    displayManager.updateHumidityValue(lastHumidity);
-    displayManager.updatePressureValue(lastVehicleData.pressure);
+  // Update display efficiently every 200ms (partial updates only)
+  if (currentTime - lastDisplayRefresh >= 200)
+  {
+    // Update acceleration gauge
+    displayManager.updateAccelGauge(
+        lastVehicleData.accel_x,
+        lastVehicleData.accel_y,
+        lastVehicleData.accel_z);
 
-    // Update warning message in reserved area
+    // Update temperature gauge
+    if (lastTemp == -1000)
+    {
+      lastTemp = carrier.Env.readTemperature();
+    }
+    displayManager.updateTempGauge(lastTemp);
+
+    // Update connection status indicators
+    displayManager.updateConnectionStatus(
+        WiFi.status() == WL_CONNECTED,
+        false);
+
+    lastDisplayRefresh = currentTime;
+
+    // Handle event indicators
     if (vehicleMonitor.isWarningActive())
     {
-      displayManager.updateWarningMsg(vehicleMonitor.getLastWarningType() + " (" + vehicleMonitor.getLastWarningLevel() + ")");
+      if (!lastEventActive)
+      {
+        displayManager.updateEventIndicator(
+            vehicleMonitor.getLastWarningType(),
+            vehicleMonitor.getLastWarningLevel());
+        lastEventActive = true;
+      }
+
       if (millis() > vehicleMonitor.getWarningEndTime())
       {
         vehicleMonitor.clearWarning();
-        displayManager.updateWarningMsg("");
+        displayManager.clearEventIndicator();
+        lastEventActive = false;
       }
     }
+    else if (lastEventActive)
+    {
+      displayManager.clearEventIndicator();
+      lastEventActive = false;
+    }
   }
+
   // Measure temperature and humidity every 5s
   if (currentTime - lastTempHumidity >= 5000)
   {
     float temp = carrier.Env.readTemperature();
     float humidity = carrier.Env.readHumidity();
+
     if (temp != lastTemp || humidity != lastHumidity)
     {
-      VehicleData tempData = lastVehicleData;
-      tempData.temperature = temp;
-      tempData.humidity = humidity;
-      // TODO: Send tempData via API POST request here
-      displayManager.updateTempValue(temp);
-      displayManager.updateHumidityValue(humidity);
-      displayManager.updatePressureValue(lastVehicleData.pressure);
+      lastVehicleData.temperature = temp;
+      lastVehicleData.humidity = humidity;
+      lastVehicleData.pressure = carrier.Pressure.readPressure();
+
+      // Update sensor values efficiently
+      displayManager.updateSensorValues(lastVehicleData);
+
       lastTemp = temp;
       lastHumidity = humidity;
     }
@@ -120,13 +145,11 @@ void loop()
   if (carrier.Buttons.onTouchDown(TOUCH2))
   {
     Serial.println("Manual recalibration initiated...");
-    displayManager.showCalibrating(0);
+    displayManager.showCalibrationProgress(0);
     vehicleMonitor.calibrateSensors();
     displayManager.flashLEDs(COLOR_GREEN, 2, 500);
-    displayManager.showSystemStatus(
-        WiFi.status() == WL_CONNECTED,
-        vehicleMonitor.isCalibrationComplete());
-    displayManager.drawMonitoringUI();
-    delay(1000);
+    delay(500);
+    // Redraw UI after calibration
+    displayManager.drawInitialUI();
   }
 }

@@ -25,17 +25,34 @@ public:
   void clearLEDs();
   void flashLEDs(uint32_t color, int times, int delayMs);
 
-  // New UI methods for round display
-  void drawMonitoringUI();
-  void updateAccelValue(float x, float y, float z);
-  void updateGyroValue(float value);
-  void updateTempValue(float value);
-  void updateHumidityValue(float value);
-  void updatePressureValue(float value);
-  void updateWarningMsg(const String& msg);
+  // Enhanced UI methods - efficient partial updates
+  void drawInitialUI();
+  void updateAccelGauge(float x, float y, float z);
+  void updateTempGauge(float temp);
+  void updateSensorValues(const VehicleData &data);
+  void updateConnectionStatus(bool wifiConnected, bool mqttConnected);
+  void updateEventIndicator(const String &eventType, const String &level);
+  void clearEventIndicator();
+
+  // Boot and calibration
+  void animateBootSequence();
+  void showCalibrationProgress(int progress);
+
+  // Helper drawing functions
+  void drawCarIcon(int x, int y, uint16_t color);
+  void drawProgressBar(int y, int progress, uint16_t color);
+  void drawGauge(int centerX, int centerY, int radius, float value, float maxValue, uint16_t color);
+  void drawStaticUI();
 
 private:
   MKRIoTCarrier& carrier;
+  // Cache last values to avoid unnecessary redraws
+  float lastAccelMagnitude = -1;
+  float lastTemp = -999;
+  float lastHumidity = -999;
+  float lastPressure = -999;
+  bool lastWifiStatus = false;
+  bool lastMqttStatus = false;
 };
 
 #endif // DISPLAY_MANAGER_H
