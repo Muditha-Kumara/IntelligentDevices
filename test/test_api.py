@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "https://uz42hteetd.execute-api.us-east-1.amazonaws.com/vehicle/events"
+url = "https://wvnlo3ttu6.execute-api.eu-north-1.amazonaws.com/vehicle/events"
 
 payload = {
     "device_id": "opla-01",

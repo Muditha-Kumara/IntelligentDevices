@@ -86,20 +86,47 @@ resource "aws_iam_role" "lambda_exec" {
   name = "lambda_exec_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "lambda.amazonaws.com"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
       }
-    }]
+    ]
   })
+}
+
+resource "aws_iam_policy" "lambda_ecr_access" {
+  name        = "lambda_ecr_access_policy"
+  description = "Allow Lambda to pull images from ECR"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForImage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_ecr_access" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = aws_iam_policy.lambda_ecr_access.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_dynamodb" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
 }
+
 
 resource "aws_iam_role_policy_attachment" "lambda_sns" {
   role       = aws_iam_role.lambda_exec.name
@@ -113,7 +140,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 variable "lambda_image_uri" {
   description = "URI of the Lambda container image in ECR"
-  default     = "201940484677.dkr.ecr.eu-north-1.amazonaws.com/vehicle-event-processor"
+  default     = "201940484677.dkr.ecr.eu-north-1.amazonaws.com/vehicle-event-processor:latest"
 }
 
 resource "aws_apigatewayv2_api" "vehicle_api" {
