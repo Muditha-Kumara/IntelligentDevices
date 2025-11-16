@@ -34,8 +34,27 @@ resource "aws_dynamodb_table" "events" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "sns_alerts" {
+  name              = "/aws/sns/vehicle_alerts"
+  retention_in_days = 14
+}
+
 resource "aws_sns_topic" "alerts" {
   name = "vehicle_alerts"
+  delivery_policy = jsonencode({
+    http = {
+      defaultHealthyRetryPolicy = {
+        minDelayTarget = 20
+        maxDelayTarget = 20
+        numRetries = 3
+        numMaxDelayRetries = 0
+        numNoDelayRetries = 0
+        numMinDelayRetries = 0
+        backoffFunction = "linear"
+      }
+      disableSubscriptionOverrides = false
+    }
+  })
 }
 
 resource "aws_sns_topic_subscription" "email" {
@@ -94,7 +113,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 variable "lambda_image_uri" {
   description = "URI of the Lambda container image in ECR"
-  default     = "201940484677.dkr.ecr.us-east-1.amazonaws.com/vehicle-lambda:latest"
+  default     = "201940484677.dkr.ecr.us-east-1.amazonaws.com/vehicle-event-processor"
 }
 
 resource "aws_apigatewayv2_api" "vehicle_api" {
