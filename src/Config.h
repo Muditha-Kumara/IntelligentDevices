@@ -9,18 +9,11 @@
 #include <Arduino.h>
 
 // ========================================
-// WiFi and MQTT Configuration
+// WiFi Configuration
 // ========================================
 extern const char* WIFI_SSID;
-extern const char* WIFI_PASSWORD;
-extern const char* MQTT_SERVER;
-extern const int MQTT_PORT;
+extern const char *WIFI_PASSWORD;
 extern const char* DEVICE_ID;
-
-// ========================================
-// MQTT Topics
-// ========================================
-// MQTT Topics removed
 
 // ========================================
 // LED Colors
@@ -63,17 +56,16 @@ struct VehicleData {
 };
 
 struct Thresholds {
-  float caution_accel = .5; // 2.0;      // m/s²
-  float alert_accel = 1.0;  // 3.5;                            // m/s²
-  float critical_accel = 1.5; // 5.0;                            // m/s²
-  float hard_braking = 1;   // 3.5;                            // m/s²
-                          //  float sharp_turn = 150.0;       // degrees/s
-  float sharp_turn = 1;
-  //2.0;                            // m/s²
-  float bump_impact = 3;
-  //6.0;                            // m/s²
-  int sampling_rate = 100;        // ms
-  int telemetry_interval = 2000;  // ms
+  // Acceleration thresholds (m/s²)
+  float alert_accel = 0.4;    // Alert level acceleration
+  float critical_accel = 0.8; // Critical level acceleration
+  float hard_braking = 0.5;   // Ha0rd braking threshold
+  float sharp_turn = 0.4;     // Sharp turn threshold (m/s²)
+  float bump_impact = 2.0;    // Bump/impact threshold
+
+  // Sampling and telemetry intervals
+  int sampling_rate = 100;       // Sensor sampling rate (ms)
+  int telemetry_interval = 2000; // Telemetry send interval (ms)
 };
 
 struct CalibrationData {

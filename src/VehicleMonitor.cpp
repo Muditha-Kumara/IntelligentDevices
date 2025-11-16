@@ -105,56 +105,38 @@ void VehicleMonitor::detectVehicleEvents() {
                               sensorData.accel_y * sensorData.accel_y + 
                               sensorData.accel_z * sensorData.accel_z);
 
-  // Calculate angular rate magnitude
-  float gyro_magnitude = sqrt(sensorData.gyro_x * sensorData.gyro_x + 
-                             sensorData.gyro_y * sensorData.gyro_y + 
-                             sensorData.gyro_z * sensorData.gyro_z);
-
   // Detect hard braking (negative Y acceleration)
   if (sensorData.accel_y < -thresholds.hard_braking)
   {
     String level = (abs(sensorData.accel_y) > thresholds.critical_accel) ? "critical" : "alert";
-    // TODO: Send event via API POST request: hard_braking
     alert.triggerAlert("HARD BRAKING", level);
     warningActive = true;
     lastWarningType = "HARD BRAKING";
     lastWarningLevel = level;
-    // warningEndTime = millis() + 2000;
   }
   // Detect hard acceleration (positive Y acceleration)
   else if (sensorData.accel_y > thresholds.alert_accel)
   {
     String level = (sensorData.accel_x > thresholds.critical_accel) ? "critical" : "alert";
-    // TODO: Send event via API POST request: hard_acceleration
     alert.triggerAlert("HARD ACCEL", level);
     warningActive = true;
     lastWarningType = "HARD ACCEL";
     lastWarningLevel = level;
-    // warningEndTime = millis() + 2000;
   }
   // Detect sharp turns (high angular velocity on Z axis)
   else if (abs(sensorData.accel_x) > thresholds.sharp_turn)
   {
     String direction = (sensorData.gyro_x > 0) ? "left" : "right";
-    // TODO: Send event via API POST request: sharp_turn
     alert.triggerAlert("SHARP TURN", "alert");
     warningActive = true;
     lastWarningType = "SHARP TURN";
     lastWarningLevel = "alert";
-    // warningEndTime = millis() + 2000;
   }
-  // Detect bumps/impacts (sudden acceleration spikes)
   else if (accel_magnitude > thresholds.bump_impact)
   {
-    // TODO: Send event via API POST request: bump_impact
     alert.triggerAlert("BUMP/IMPACT", "alert");
     warningActive = true;
     lastWarningType = "BUMP/IMPACT";
     lastWarningLevel = "alert";
-    // warningEndTime = millis() + 2000;
-  }
-  // General driving quality warnings
-  else if (accel_magnitude > thresholds.caution_accel) {
-    carrier.leds.setPixelColor(0, COLOR_YELLOW);
   }
 }

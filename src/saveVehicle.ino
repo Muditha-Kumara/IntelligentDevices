@@ -99,9 +99,6 @@ void loop()
     {
       if (!lastEventActive)
       {
-        displayManager.updateEventIndicator(
-            vehicleMonitor.getLastWarningType(),
-            vehicleMonitor.getLastWarningLevel());
         lastEventActive = true;
       }
 
