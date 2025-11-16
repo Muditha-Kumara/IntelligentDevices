@@ -109,7 +109,7 @@ void VehicleMonitor::detectVehicleEvents() {
   if (sensorData.accel_y < -thresholds.hard_braking)
   {
     String level = (abs(sensorData.accel_y) > thresholds.critical_accel) ? "critical" : "alert";
-    alert.triggerAlert("HARD BRAKING", level);
+    alert.triggerAlert("HARD BRAKING", level, sensorData);
     warningActive = true;
     lastWarningType = "HARD BRAKING";
     lastWarningLevel = level;
@@ -118,7 +118,7 @@ void VehicleMonitor::detectVehicleEvents() {
   else if (sensorData.accel_y > thresholds.alert_accel)
   {
     String level = (sensorData.accel_x > thresholds.critical_accel) ? "critical" : "alert";
-    alert.triggerAlert("HARD ACCEL", level);
+    alert.triggerAlert("HARD ACCEL", level, sensorData);
     warningActive = true;
     lastWarningType = "HARD ACCEL";
     lastWarningLevel = level;
@@ -127,14 +127,14 @@ void VehicleMonitor::detectVehicleEvents() {
   else if (abs(sensorData.accel_x) > thresholds.sharp_turn)
   {
     String direction = (sensorData.gyro_x > 0) ? "left" : "right";
-    alert.triggerAlert("SHARP TURN", "alert");
+    alert.triggerAlert("SHARP TURN", "alert", sensorData);
     warningActive = true;
     lastWarningType = "SHARP TURN";
     lastWarningLevel = "alert";
   }
   else if (accel_magnitude > thresholds.bump_impact)
   {
-    alert.triggerAlert("BUMP/IMPACT", "alert");
+    alert.triggerAlert("BUMP/IMPACT", "alert", sensorData);
     warningActive = true;
     lastWarningType = "BUMP/IMPACT";
     lastWarningLevel = "alert";

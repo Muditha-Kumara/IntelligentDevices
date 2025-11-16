@@ -12,18 +12,21 @@
 #include "DisplayManager.h"
 #include "pitches.h"
 
-class AlertManager {
+class AlertManager
+{
 public:
-  AlertManager(MKRIoTCarrier& carrier, DisplayManager& display);
-  
-  void triggerAlert(String eventType, String level);
-  
+  AlertManager(MKRIoTCarrier &carrier, DisplayManager &display);
+
+  // Refactored: Accept sensor data and send alert in one call
+  void triggerAlert(String eventType, String level, const VehicleData &data);
+
 private:
   MKRIoTCarrier& carrier;
   DisplayManager& display;
-  
+
   void playWarningTone();
   void playLEDPattern(String level);
+  void sendAlertData(const VehicleData &data, const String &eventType, const String &level);
 };
 
 #endif // ALERT_MANAGER_H

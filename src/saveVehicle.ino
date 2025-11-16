@@ -30,6 +30,28 @@ void setup()
       ;
   }
 
+  // Connect to WiFi before any network operations
+  Serial.print("Connecting to WiFi...");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  int wifiTimeout = 20000; // 20s timeout
+  unsigned long wifiStart = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - wifiStart < wifiTimeout)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.println("Connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  }
+  else
+  {
+    Serial.println("WiFi connection failed!");
+    // Optionally halt or continue in offline mode
+  }
+
   // Initialize display
   displayManager.begin();
   displayManager.animateBootSequence();
