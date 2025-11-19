@@ -10,6 +10,7 @@ AlertManager::AlertManager(MKRIoTCarrier& carrier, DisplayManager& display)
 }
 
 // Refactored: Accept sensor data and send alert in one call
+#include "WiFiManager.h"
 #include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
 #include <NTPClient.h>
@@ -83,9 +84,6 @@ void AlertManager::sendAlertData(const VehicleData &data, const String &eventTyp
     urlPath = "/";
   }
 
-  WiFiSSLClient client;
-  HttpClient http(client, server, port);
-
   // Get real-world UTC time from NTP
   static WiFiUDP ntpUDP;
   static NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000); // UTC, update every 60s
@@ -130,8 +128,23 @@ void AlertManager::sendAlertData(const VehicleData &data, const String &eventTyp
   int statusCode = -1;
   String response;
 
+  extern WiFiManager wifiManager;
   while (attempt < maxAttempts)
   {
+    // Use WiFiManager to ensure connection
+    if (!wifiManager.ensureConnection())
+    {
+      Serial.println("[AlertManager] WiFi reconnect failed. Skipping alert POST.");
+      statusCode = -3;
+      break;
+    }
+    Serial.print("[AlertManager] WiFi RSSI: ");
+    Serial.println(WiFi.RSSI());
+
+    // Reinitialize client and http for each attempt
+    WiFiSSLClient client;
+    HttpClient http(client, server, port);
+
     attempt++;
     http.beginRequest();
     http.post(urlPath, "application/json", jsonPayload);
@@ -139,6 +152,11 @@ void AlertManager::sendAlertData(const VehicleData &data, const String &eventTyp
 
     statusCode = http.responseStatusCode();
     response = http.responseBody();
+
+    // Explicitly close HTTP and SSL client after each POST
+    http.stop();
+    client.stop();
+    delay(500); // short delay to release resources
 
     if (statusCode >= 200 && statusCode < 300)
       break; // success

@@ -1,5 +1,5 @@
 #include <Arduino_MKRIoTCarrier.h>
-#include <WiFiNINA.h>
+#include "WiFiManager.h"
 #include "Config.h"
 #include "DisplayManager.h"
 #include "AlertManager.h"
@@ -13,6 +13,7 @@ VehicleMonitor vehicleMonitor(carrier, alertManager);
 bool systemReady = false;
 unsigned long lastTelemetry = 0;
 unsigned long lastSample = 0;
+WiFiManager wifiManager(WIFI_SSID, WIFI_PASSWORD);
 
 void setup()
 {
@@ -32,15 +33,15 @@ void setup()
 
   // Connect to WiFi before any network operations
   Serial.print("Connecting to WiFi...");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  wifiManager.begin();
   int wifiTimeout = 20000; // 20s timeout
   unsigned long wifiStart = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - wifiStart < wifiTimeout)
+  while (!wifiManager.isConnected() && millis() - wifiStart < wifiTimeout)
   {
     delay(500);
     Serial.print(".");
   }
-  if (WiFi.status() == WL_CONNECTED)
+  if (wifiManager.isConnected())
   {
     Serial.println("Connected!");
     Serial.print("IP: ");
@@ -82,6 +83,9 @@ void loop()
   static float lastTemp = -1000;
   static float lastHumidity = -1000;
   static bool lastEventActive = false;
+
+  // Check WiFi connectivity every loop and reconnect if needed
+  wifiManager.ensureConnection();
 
   // Monitor driving status every 100ms
   if (currentTime - lastDrivingMonitor >= 100)
@@ -161,6 +165,7 @@ void loop()
 
   // Check for button press for manual calibration
   carrier.Buttons.update();
+
   if (carrier.Buttons.onTouchDown(TOUCH2))
   {
     Serial.println("Manual recalibration initiated...");

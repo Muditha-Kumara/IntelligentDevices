@@ -298,7 +298,7 @@ void DisplayManager::updateConnectionStatus(bool wifiConnected, bool mqttConnect
   if (wifiConnected != lastWifiStatus)
   {
     lastWifiStatus = wifiConnected;
-    carrier.display.fillCircle(200, 18, 5, wifiConnected ? COLOR_LIME : DISPLAY_RED);
+    carrier.display.fillCircle(180, 25, 5, wifiConnected ? COLOR_LIME : DISPLAY_RED);
   }
 
   // MQTT indicator - positioned safely within top bar
