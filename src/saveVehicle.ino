@@ -17,7 +17,7 @@ WiFiManager wifiManager(WIFI_SSID, WIFI_PASSWORD);
 
 void setup()
 {
-  CARRIER_CASE = false;
+  //  CARRIER_CASE = true;
   Serial.begin(9600);
 
   Serial.println("=== Vehicle Driving Quality Monitor ===");
