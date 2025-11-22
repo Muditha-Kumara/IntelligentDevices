@@ -107,15 +107,6 @@ void DisplayManager::drawStaticUI()
   carrier.display.setCursor(170, 135);
   carrier.display.println("Temp");
 
-  // Data area labels - compact layout
-  carrier.display.setCursor(20, 160);
-  carrier.display.setTextColor(COLOR_TEAL);
-  carrier.display.print("Humid:");
-
-  carrier.display.setCursor(20, 175);
-  carrier.display.setTextColor(COLOR_PURPLE);
-  carrier.display.print("Press:");
-
   // Bottom bar - within safe area
   carrier.display.fillRoundRect(15, 195, 226, 60, 5, COLOR_NAVY);
   carrier.display.setTextSize(2);
@@ -129,8 +120,8 @@ void DisplayManager::drawInitialUI()
   drawStaticUI();
   lastAccelMagnitude = -1;
   lastTemp = -999;
-  lastHumidity = -999;
-  lastPressure = -999;
+  // lastHumidity = -999;
+  // lastPressure = -999;
   lastWifiStatus = false;
   lastMqttStatus = false;
 }

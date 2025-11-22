@@ -142,27 +142,6 @@ void loop()
     }
   }
 
-  // Measure temperature and humidity every 5s
-  if (currentTime - lastTempHumidity >= 5000)
-  {
-    float temp = carrier.Env.readTemperature();
-    float humidity = carrier.Env.readHumidity();
-
-    if (temp != lastTemp || humidity != lastHumidity)
-    {
-      lastVehicleData.temperature = temp;
-      lastVehicleData.humidity = humidity;
-      lastVehicleData.pressure = carrier.Pressure.readPressure();
-
-      // Update sensor values efficiently
-      displayManager.updateSensorValues(lastVehicleData);
-
-      lastTemp = temp;
-      lastHumidity = humidity;
-    }
-    lastTempHumidity = currentTime;
-  }
-
   // Check for button press for manual calibration
   carrier.Buttons.update();
 
