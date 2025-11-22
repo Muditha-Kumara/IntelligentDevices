@@ -19,6 +19,9 @@ public:
 
   // Refactored: Accept sensor data and send alert in one call
   void triggerAlert(String eventType, String level, const VehicleData &data);
+  
+  // Handle critical stop warning from cloud response
+  void triggerCriticalStopWarning();
 
 private:
   MKRIoTCarrier& carrier;

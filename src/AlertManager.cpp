@@ -171,4 +171,61 @@ void AlertManager::sendAlertData(const VehicleData &data, const String &eventTyp
   Serial.println(statusCode);
   Serial.print("Response: ");
   Serial.println(response);
+  
+  // Check if response contains "stop" command
+  if (response.indexOf("stop") >= 0 || response.indexOf("STOP") >= 0) {
+    Serial.println("[AlertManager] CRITICAL: Stop command received from cloud!");
+    triggerCriticalStopWarning();
+  }
+}
+
+void AlertManager::triggerCriticalStopWarning() {
+  Serial.println("[AlertManager] Executing critical stop warning sequence...");
+  
+  // Show critical warning on display
+  display.showCriticalStopWarning();
+  
+  // Critical LED pattern - rapid red flashing
+  uint32_t criticalColor = COLOR_RED;
+  
+  // Play critical warning tone and LED pattern for 5 seconds
+  unsigned long startTime = millis();
+  unsigned long duration = 5000; // 5 seconds
+  
+  while (millis() - startTime < duration) {
+    // Rapid LED flashing (every 200ms)
+    carrier.leds.fill(criticalColor, 0, 5);
+    carrier.leds.show();
+    
+    // Critical alarm tone - high pitch, urgent
+    carrier.Buzzer.sound(NOTE_A5); // High pitch note
+    delay(100);
+    carrier.Buzzer.noSound();
+    
+    // Turn off LEDs briefly
+    carrier.leds.fill(0, 0, 5);
+    carrier.leds.show();
+    delay(100);
+    
+    // Second beep in the pattern
+    carrier.Buzzer.sound(NOTE_A5);
+    delay(100);
+    carrier.Buzzer.noSound();
+    delay(100);
+    
+    // Check if 5 seconds have passed
+    if (millis() - startTime >= duration) break;
+  }
+  
+  // Turn off all alerts
+  carrier.leds.fill(0, 0, 5);
+  carrier.leds.show();
+  carrier.Buzzer.noSound();
+  
+  Serial.println("[AlertManager] Critical warning sequence complete. Reloading normal UI...");
+  
+  // Reload normal monitoring UI
+  display.drawInitialUI();
+  
+  Serial.println("[AlertManager] Normal monitoring mode restored.");
 }

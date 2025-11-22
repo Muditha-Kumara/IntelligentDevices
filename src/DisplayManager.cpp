@@ -123,7 +123,7 @@ void DisplayManager::drawInitialUI()
   // lastHumidity = -999;
   // lastPressure = -999;
   lastWifiStatus = false;
-  lastMqttStatus = false;
+  //  lastMqttStatus = false;
 }
 
 void DisplayManager::showAlert(String eventType, String level)
@@ -173,6 +173,49 @@ void DisplayManager::showAlert(String eventType, String level)
 
   // Flash LEDs
   flashLEDs(alertColor, 5, 200);
+}
+
+void DisplayManager::showCriticalStopWarning()
+{
+  // Save current display state if needed (we'll restore to monitoring mode after)
+
+  // Fill screen with critical warning background
+  carrier.display.fillScreen(COLOR_RED);
+
+  // Draw warning border with pulsing effect
+  for (int border = 0; border < 10; border += 2)
+  {
+    carrier.display.drawRoundRect(border, border, 256 - 2 * border, 256 - 2 * border, 10, COLOR_YELLOW);
+  }
+
+  // Main warning box
+  carrier.display.fillRoundRect(30, 60, 196, 136, 15, 0x0000);
+  carrier.display.drawRoundRect(32, 62, 192, 132, 12, COLOR_RED);
+
+  // Large STOP text
+  carrier.display.setTextSize(4);
+  carrier.display.setCursor(70, 80);
+  carrier.display.setTextColor(COLOR_RED);
+  carrier.display.println("STOP");
+
+  // Critical warning text
+  carrier.display.setTextSize(2);
+  carrier.display.setCursor(45, 120);
+  carrier.display.setTextColor(COLOR_YELLOW);
+  carrier.display.println("CRITICAL");
+
+  carrier.display.setTextSize(1);
+  carrier.display.setCursor(60, 140);
+  carrier.display.setTextColor(COLOR_WHITE);
+  carrier.display.println("VEHICLE STOPPED");
+
+  carrier.display.setCursor(50, 155);
+  carrier.display.println("BY REMOTE COMMAND");
+
+  // Warning triangle icon
+  carrier.display.fillTriangle(128, 170, 118, 190, 138, 190, COLOR_YELLOW);
+  carrier.display.fillTriangle(126, 175, 130, 175, 128, 185, COLOR_RED);
+  carrier.display.fillCircle(128, 188, 2, COLOR_RED);
 }
 
 void DisplayManager::updateStatusLED(bool systemReady, bool wifiConnected)

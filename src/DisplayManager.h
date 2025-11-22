@@ -20,6 +20,7 @@ public:
   void showMonitoringStatus(const VehicleData& data, const Thresholds& thresholds, 
                             bool wifiConnected, bool mqttConnected, bool systemReady);
   void showAlert(String eventType, String level);
+  void showCriticalStopWarning();
   void updateStatusLED(bool systemReady, bool wifiConnected);
   void setLEDColor(uint32_t color);
   void clearLEDs();
